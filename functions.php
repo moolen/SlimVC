@@ -12,6 +12,8 @@ $App->Router->is('home', PostsController);
 $App->Router->is('page', PageController);
 $App->Router->is('404', NotFoundController);
 
+$App->Template->addPageTemplate('my-example-template', 'Fresh Example Template');
+
 // explicit routes
 // $App->Router->get('/foo/', PageController);
 

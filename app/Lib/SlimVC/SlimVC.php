@@ -3,6 +3,7 @@ namespace App\Lib\SlimVC;
 
 use \Slim\Slim as libSlim;
 use \Slim\Views\Twig as TwigView;
+use \App\Lib\SlimVC\PageTemplate as PageTemplate;
 use \App\Lib\SlimVC\Router as Router;
 use \App\Lib\SlimVC\Logger as Logger;
 
@@ -54,6 +55,8 @@ class SlimVC{
 	 */
 	public $Router = null;
 
+	public $Template = null;
+
 	/**
 	 * sets the slimOptions, registers the wp-core-callbacks
 	 * 
@@ -77,6 +80,8 @@ class SlimVC{
 
 		// instantiate Router 
 		$this->Router = new Router( new libSlim( $this->slimOptions ) );
+
+		$this->Template = new Template();
 
 		// add necessary action & filter callbacks
 		add_action( 'muplugins_loaded', array($this, 'onMuPluginsLoaded') );		
