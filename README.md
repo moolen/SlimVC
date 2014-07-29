@@ -3,7 +3,6 @@ This is a MVC Abstraction Layer on top of Wordpress. Seriously, the wordpress AP
 This is heavily inspired by http://www.themosis.com/ (check it out!)
 
 
-
 # Features
 
 ## Explicit Routing
@@ -35,6 +34,9 @@ $App->Router->get('/foo(/:bar?)', 'PostsController');
 $App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
 ```
 ## Conditional Routing
+Internally conditional tags are used for the following routing method. Currently there are not all Conditional Tags supported. the supported ones are: `home, front_page, blog_page, admin, single, page, (page_template), category, tag, tax, archive, search, singular, 404`.
+
+
 ```PHP
 // @functions.php
 // when the "home" page is requested  \App\Controllers\HomeController
@@ -42,6 +44,7 @@ $App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
 $App = $App->Router->is('home', 'HomeController');
 $App = $App->Router->is('page', 'PageController');
 $App = $App->Router->is('404', 'NotFoundController');
+$App = $App->Router->is(array('singular', 'page'), 'PageController');
 ```
 ## MVC Structure
 
