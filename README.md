@@ -144,10 +144,10 @@ Wordpress Abstraction Layer for `Custom Post Types`, `Custom Taxonomies`, and th
 
 // register CPT
 // signature: string $label, string $slug, optional array $args
-$App->registerPostType('Book', 'books');
+$App->registerPostType('Book', 'books', $args);
 
 // register CT
-$App->registerTaxonomy('Store', 'stores');
+$App->registerTaxonomy('Store', 'stores', $args);
 
 // add other initializers for libraries
 // called @do_action <template_redirect>
