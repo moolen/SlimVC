@@ -21,7 +21,7 @@ $App->Router->is('404', NotFoundController);
 
 
 // explicit routes
-// $App->Router->get('/foo/', PageController);
+$App->Router->get('/foo/', PageController);
 
 // the following route supports:
 // /books
