@@ -9,6 +9,8 @@ This is heavily inspired by http://www.themosis.com/ (check it out!)
 ## Explicit Routing
 
 ```PHP
+// @functions.php
+
 // create Instance
 $App = new App\Lib\SlimVC\SlimVC();
 
@@ -30,12 +32,12 @@ $App->Router->get('/foo(/:bar?)', 'PostsController');
 // /books/one/two
 // /books/one/two/
 $App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
-
-
 ```
 ## Conditional Routing
 ```PHP
-// when the "home" page is requested  \App\Controllers\HomeController will be instantiated
+// @functions.php
+// when the "home" page is requested  \App\Controllers\HomeController
+// will be instantiated
 $App = $App->Router->is('home', 'HomeController');
 $App = $App->Router->is('page', 'PageController');
 $App = $App->Router->is('404', 'NotFoundController');
@@ -44,8 +46,8 @@ $App = $App->Router->is('404', 'NotFoundController');
 
 Checkout a controller in `app/Controllers/`.
 
-Sample from Above:
-$App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
+Sample from Above: A route matches /books(/:book(/:another))
+
 ```PHP
 namespace App\Controllers;
 
@@ -91,8 +93,8 @@ use \ArrayIterator;
 use \IteratorAggregate;
 use \App\Lib\SlimVC\PostModel;
 
-// implement IteratorAggregate to iterate conveniently over the model inside the twig-view
-// like for ( post in posts ){ //do stuff }
+// implement IteratorAggregate to iterate conveniently
+// over the model inside the twig-view
 class BooksModel implements \IteratorAggregate{
 
 	protected $posts;
@@ -110,12 +112,13 @@ class BooksModel implements \IteratorAggregate{
 			'posts_per_page' => -1
 		));
 
-		// return new PostModel Instance
+		// return new PostModel Instance per Post
 		return array_map(function( $post ){
 			return new PostModel( $post );
 		}, $posts);
 	}
 
+	// Implement IteratorAggregate
 	public function getIterator(){
 		return new \ArrayIterator( $this->posts );
 	}
@@ -124,13 +127,13 @@ class BooksModel implements \IteratorAggregate{
 
 ```
 
-Checkout the Views in `app/Views/`.
-
 ## Twig as Templating Engine
+Views are located in `app/Views/`.
 currently only Twig is supported, but per-se replaceable. (https://github.com/codeguy/Slim-Views)
+The Twig Documentation is over here: http://twig.sensiolabs.org/documentation.
 
 ## WPAL
-Wordpress Abstraction Layer for Custom Post Types, Custom Taxonomies, and the ACF Plugin.
+Wordpress Abstraction Layer for `Custom Post Types`, `Custom Taxonomies`, and the ACF Plugin. Soon there will be coming more APIs for Pagination etc.
 
 # Installation
 clone this repository into your `themes/` folder.
@@ -141,5 +144,6 @@ Be sure to create a .htaccess.
 # Todo
 
 - ACF v5 API
+- Wrap more WP APIs 
 - Configuration / ENV API
 - More options for SlimVC constructor
