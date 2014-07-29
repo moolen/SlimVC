@@ -41,10 +41,10 @@ Internally conditional tags are used for the following routing method. Currently
 // @functions.php
 // when the "home" page is requested  \App\Controllers\HomeController
 // is constructed
-$App = $App->Router->is('home', 'HomeController');
-$App = $App->Router->is('page', 'PageController');
-$App = $App->Router->is('404', 'NotFoundController');
-$App = $App->Router->is(array('singular', 'page'), 'PageController');
+$App->Router->is('home', 'HomeController');
+$App->Router->is('page', 'PageController');
+$App->Router->is('404', 'NotFoundController');
+$App->Router->is(array('singular', 'page'), 'PageController');
 ```
 ## MVC Structure
 
