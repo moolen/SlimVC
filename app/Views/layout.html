@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	{% block head %}
+		<title>{% block title %}{% endblock %} - myApp</title>
+	{% endblock %}
+</head>
+<body>
+	<div id="app">
+		<div id="main">
+			{% block main %}
+			{% endblock %}
+		</div>
+		<div id="sidebar">
+			{% block sidebar %}
+				<ul class="sidebar">
+					<li>Some random Sidebar links 1</li>
+					<li>Some random Sidebar links 2</li>
+					<li>Some random Sidebar links 3</li>
+					<li>Some random Sidebar links 4</li>
+					<li>Some random Sidebar links 5</li>
+				</ul>
+			{% endblock %}
+		</div>
+	</div>
+	<div id="footer">
+		{% block footer %}
+		{% endblock %}
+	</div>
+</body>
+</html>

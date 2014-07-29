@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block title %}Posts-Collection{% endblock %}
+
+{% block main %}
+	<h3>Welcome. here are my posts:</h3>
+	{% for post in posts %}
+		<li>{{ loop.index }} - {{ post.title() }}</li>
+	{% endfor %}
+{% endblock %}

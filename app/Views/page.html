@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ post.title() }}{% endblock %}
+
+{% block main %}
+	<h3>{{ post.title() }}</h3>
+	<article>
+		{{ post.content() }}
+	</article>
+{% endblock %}
