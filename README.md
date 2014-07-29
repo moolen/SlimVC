@@ -19,8 +19,8 @@ $App = new App\Lib\SlimVC\SlimVC();
 $App->setControllerNamespace('\\App\\Controllers\\');
 
 //
-// \App\Controllers\PageController will be instantiated
-// when <wp-url>/foo will be requested 
+// \App\Controllers\PageController is instantiated
+// when <wp-url>/foo is requested 
 // more on Controllers below
 $App->Router->get('/foo', 'PageController');
 $App->Router->get('/foo(/:bar?)', 'PostsController');
@@ -38,7 +38,7 @@ $App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
 ```PHP
 // @functions.php
 // when the "home" page is requested  \App\Controllers\HomeController
-// will be instantiated
+// is constructed
 $App = $App->Router->is('home', 'HomeController');
 $App = $App->Router->is('page', 'PageController');
 $App = $App->Router->is('404', 'NotFoundController');
@@ -134,7 +134,7 @@ currently only Twig is supported, but per-se replaceable. (https://github.com/co
 The Twig Documentation is over here: http://twig.sensiolabs.org/documentation.
 
 ## WPAL
-Wordpress Abstraction Layer for `Custom Post Types`, `Custom Taxonomies`, and the ACF Plugin. Soon there will be coming more APIs for Pagination etc.
+Wordpress Abstraction Layer for `Custom Post Types`, `Custom Taxonomies`, and the ACF Plugin. More APIs soon.
 
 # Installation
 clone this repository into your `themes/` folder.
