@@ -133,11 +133,29 @@ class BooksModel implements \IteratorAggregate{
 
 ## Twig as Templating Engine
 Views are located in `app/Views/`.
-currently only Twig is supported, but per-se replaceable. (https://github.com/codeguy/Slim-Views)
+currently only Twig is supported, but per-se replaceable (https://github.com/codeguy/Slim-Views).
+
 The Twig Documentation is over here: http://twig.sensiolabs.org/documentation.
 
 ## WPAL
 Wordpress Abstraction Layer for `Custom Post Types`, `Custom Taxonomies`, and the ACF Plugin. More APIs soon.
+
+```PHP
+
+// register CPT
+// signature: string $label, string $slug, optional array $args
+$App->registerPostType('Book', 'books');
+
+// register CT
+$App->registerTaxonomy('Store', 'stores');
+
+// add other initializers for libraries
+// called @do_action <template_redirect>
+$App->addInitializer(function(){
+	// do some stuff
+});
+
+```
 
 # Installation
 clone this repository into your `themes/` folder.
