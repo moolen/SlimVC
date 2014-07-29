@@ -7,12 +7,16 @@ $App = new App\Lib\SlimVC\SlimVC();
 // register post type
 $App->registerPostType('Book', 'books');
 
+// register CT
+$App->registerTaxonomy('BookCategories', 'book-categories' );
+
+// add page Template
+$App->addPageTemplate('Fresh Example Template', 'my-template');
+
 // conditional routes
 $App->Router->is('home', PostsController);
 $App->Router->is('page', PageController);
 $App->Router->is('404', NotFoundController);
-
-$App->Template->addPageTemplate('my-example-template', 'Fresh Example Template');
 
 // explicit routes
 // $App->Router->get('/foo/', PageController);

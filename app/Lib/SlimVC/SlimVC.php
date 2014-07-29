@@ -55,7 +55,11 @@ class SlimVC{
 	 */
 	public $Router = null;
 
-	public $Template = null;
+	/**
+	 * holds our Template class
+	 * @var [PageTemplate]
+	 */
+	protected $PageTemplate = null;
 
 	/**
 	 * sets the slimOptions, registers the wp-core-callbacks
@@ -81,7 +85,7 @@ class SlimVC{
 		// instantiate Router 
 		$this->Router = new Router( new libSlim( $this->slimOptions ) );
 
-		$this->Template = new Template();
+		$this->PageTemplate = new PageTemplate();
 
 		// add necessary action & filter callbacks
 		add_action( 'muplugins_loaded', array($this, 'onMuPluginsLoaded') );		
@@ -92,6 +96,36 @@ class SlimVC{
 		add_action( 'wp_loaded', array($this, 'onWpLoaded') );
 		add_action( 'template_redirect', array($this, 'onTemplateRedirect') );
 		
+	}
+
+	/**
+	 * calls the initializers callbacks
+	 * @return [void]
+	 */
+	protected function callInitializers(){
+		foreach( $this->initializerList as $fn ){
+			call_user_func($fn);
+		}
+	}
+
+	/**
+	 * registers all post types
+	 * @return [void]
+	 */
+	protected function registerPostTypeList(){
+		foreach( $this->postTypeList as $slug => $args ){
+			register_post_type( $slug, $args );
+		}
+	}
+
+	/**
+	 * registers custom taxonomies
+	 * @return [void]
+	 */
+	protected function registerTaxonomyList(){
+		foreach( $this->taxonomyList as $slug => $args ){
+			register_taxonomy($slug, $args);
+		}
 	}
 
 	/**
@@ -160,42 +194,17 @@ class SlimVC{
 	}
 
 	/**
-	 * calls the initializers callbacks
-	 * @return [void]
-	 */
-	protected function callInitializers(){
-		foreach( $this->initializerList as $fn ){
-			call_user_func($fn);
-		}
-	}
-
-	/**
-	 * registers all post types
-	 * @return [void]
-	 */
-	protected function registerPostTypeList(){
-		foreach( $this->postTypeList as $slug => $args ){
-			register_post_type( $slug, $args );
-		}
-	}
-
-	/**
-	 * registers custom taxonomies
-	 * @return [void]
-	 */
-	protected function registerTaxonomyList(){
-		foreach( $this->taxonomyList as $slug => $args ){
-			register_taxonomy($slug, $args);
-		}
-	}
-
-	/**
 	 * adds a callback to initializerList
 	 * which will be called after Slim is initialized
 	 * @param [function] $fn
 	 */
 	public function addInitializer( $fn ){
 		$this->initializerList[] = $fn;
+		return $this;
+	}
+
+	public function addPageTemplate($name, $slug){
+		$this->PageTemplate->addPageTemplate($name, $slug);
 		return $this;
 	}
 

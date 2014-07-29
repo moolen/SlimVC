@@ -138,8 +138,6 @@ class Router{
 		$matches = 0;
 		$count = count($conditions);
 
-		var_dump($this->conditionalTags);
-
 		foreach($conditions as $condition){
 			if( true === $this->conditionalTags[ $condition ] ){
 				$matches++;

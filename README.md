@@ -154,7 +154,8 @@ $App->registerPostType('Book', 'books', $args);
 // register CT
 $App->registerTaxonomy('Store', 'stores', $args);
 
-$App->Template->addPageTemplate('my-example-template');
+// add Page Template programatically
+$App->addPageTemplate('Fresh Example Template', 'my-template');
 
 ```
 The SlimVC Class exposes a Event-Driven Api to register Callbacks to all wordpress action hooks  `muplugins_loaded, plugins_loaded, setup_theme, after_setup_theme, init, wp_loaded, template_redirect`.

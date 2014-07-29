@@ -2,10 +2,9 @@
 
 namespace App\Lib\SlimVC;
 
-//
 // seen here:
-// http://stackoverflow.com/questions/19328475/adding-custom-page-template-from-plugin#answer-22046128
-class Template {
+// http://www.wpexplorer.com/wordpress-page-templates-plugin/
+class PageTemplate {
 
     /**
      * The array of templates that this plugin tracks.
