@@ -6,13 +6,13 @@ use \App\Lib\SlimVC\Logger;
 
 class Router{
 
-	// otps & instances
+	// opts & instances
 	protected $controllerNamespace = '\\App\\Controllers\\';
 	protected $Slim = null;
 	protected $options = array();
 	protected $Logger = null;
 	protected $logLevel = 0;
-	protected $enableLogging = false;
+	protected $enableLogging = true;
 
 	// routing vars
 	protected $explicitRoutes = array();
@@ -138,6 +138,8 @@ class Router{
 		$matches = 0;
 		$count = count($conditions);
 
+		var_dump($this->conditionalTags);
+
 		foreach($conditions as $condition){
 			if( true === $this->conditionalTags[ $condition ] ){
 				$matches++;
@@ -257,7 +259,7 @@ class Router{
 	 * adds Middleware to Slim application
 	 * @param [object] $middleware
 	 */
-	public function addMiddleware( MiddlewareInterface $middleware ){
+	public function addMiddleware( $middleware ){
 		$this->Slim->add( $middleware );
 	}
 

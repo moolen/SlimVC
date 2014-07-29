@@ -75,6 +75,7 @@ class SlimVC{
 			$slimOptions
 		);
 
+		// instantiate Router 
 		$this->Router = new Router( new libSlim( $this->slimOptions ) );
 
 		// add necessary action & filter callbacks
@@ -95,6 +96,7 @@ class SlimVC{
 	public function onMuPluginsLoaded(){
 		$this->emit('muplugins_loaded');
 	}
+
 	/**
 	 * event callback for plugins_loaded
 	 * @return [void]
