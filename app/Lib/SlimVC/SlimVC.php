@@ -9,6 +9,19 @@ use \App\Lib\SlimVC\Logger as Logger;
 class SlimVC{
 
 	/**
+	 * PHP 5.4 Trait 
+	 * inherits Methods like:
+	 * 
+	 * .on('event', $foo, $bar)
+	 * .once('event', $foo, $bar)
+	 * .off('event', $callable)
+	 * .emit('event', $foo, $bar)
+	 * .addListener('event', $callable)
+	 * .removeListener('event', $callable)
+	 */
+	use \Nekoo\EventEmitter;
+
+	/**
 	 * holds our merged slimOptions
 	 * @var [array]
 	 */

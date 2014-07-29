@@ -4,8 +4,50 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6f556fde5419b68b5e49527c4492e496",
+    "hash": "8c40371df991a64344fa1d620c2dd83a",
     "packages": [
+        {
+            "name": "nekoo/EventEmitter",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/christopherobin/EventEmitter.git",
+                "reference": "fea79114c4141a27c27500f9a2940890440b02ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/christopherobin/EventEmitter/zipball/fea79114c4141a27c27500f9a2940890440b02ed",
+                "reference": "fea79114c4141a27c27500f9a2940890440b02ed",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Nekoo": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christophe Robin",
+                    "email": "crobin@nekoo.com"
+                }
+            ],
+            "description": "Port of NodeJSs EventEmitter to PHP 5.4 using traits",
+            "homepage": "https://github.com/christopherobin/EventEmitter",
+            "keywords": [
+                "event",
+                "listener",
+                "observer"
+            ],
+            "time": "2012-04-10 01:21:47"
+        },
         {
             "name": "phpunit/php-code-coverage",
             "version": "2.0.9",
