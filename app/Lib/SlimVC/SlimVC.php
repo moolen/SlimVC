@@ -78,12 +78,82 @@ class SlimVC{
 		$this->Router = new Router( new libSlim( $this->slimOptions ) );
 
 		// add necessary action & filter callbacks
-		add_action( 'template_redirect', array($this, 'onTemplateRedirectCallback') );
-		add_action( 'init' , array($this, 'onInitCallback') );
+		add_action( 'muplugins_loaded', array($this, 'onMuPluginsLoaded') );		
+		add_action( 'plugins_loaded', array($this, 'onPluginsLoaded') );		
+		add_action( 'setup_theme', array($this, 'onSetupTheme') );		
+		add_action( 'after_setup_theme', array($this, 'onAfterSetupTheme') );		
+		add_action( 'init' , array($this, 'onInit') );
+		add_action( 'wp_loaded', array($this, 'onWpLoaded') );
+		add_action( 'template_redirect', array($this, 'onTemplateRedirect') );
+		
 	}
 
 	/**
-	 * calls the initializers 
+	 * event callback for muplugins_loaded
+	 * @return [void]
+	 */
+	public function onMuPluginsLoaded(){
+		$this->emit('muplugins_loaded');
+	}
+	/**
+	 * event callback for plugins_loaded
+	 * @return [void]
+	 */
+	public function onPluginsLoaded(){
+		$this->emit('plugins_loaded');
+	}
+
+	/**
+	 * event callback for setup_theme
+	 * @return [void]
+	 */
+	public function onSetupTheme(){
+		$this->emit('setup_theme');
+	}
+
+	/**
+	 * event callback for after_setup_theme
+	 * @return [void]
+	 */
+	public function onAfterSetupTheme(){
+		$this->emit('after_setup_theme');
+	}
+
+	/**
+	 * registers custom post-types and custom taxonomies
+	 * event callback for init
+	 * @return [void]
+	 */
+	public function onInit(){
+		$this->registerPostTypeList();
+		$this->registerTaxonomyList();
+		$this->emit('init');
+	}
+
+	/**
+	 * event callback for wp_loaded
+	 * @return [void]
+	 */
+	public function onWpLoaded(){
+		$this->emit('wp_loaded');
+	}
+
+	/**
+	 * event callback for template_redirect
+	 * this is the first action hook when conditional tags are available
+	 * @return [void]
+	 */
+	public function onTemplateRedirect(){
+		$this->Router->setConditionalTags();
+		$this->Router->assignRoutes();
+		$this->callInitializers();
+		$this->Router->run();
+		$this->emit('template_redirect');
+		exit;
+	}
+
+	/**
+	 * calls the initializers callbacks
 	 * @return [void]
 	 */
 	protected function callInitializers(){
@@ -110,29 +180,6 @@ class SlimVC{
 		foreach( $this->taxonomyList as $slug => $args ){
 			register_taxonomy($slug, $args);
 		}
-	}
-
-	/**
-	 * on do_action <template_redirect> callback
-	 * this is the first action hook when conditional tags are available
-	 * @return [void]
-	 */
-	public function onTemplateRedirectCallback(){
-		$this->Router->setConditionalTags();
-		$this->Router->assignRoutes();
-		$this->callInitializers();
-		$this->Router->run();
-		exit;
-	}
-
-	/**
-	 * registers custom post-types and custom taxonomies
-	 * @do_action <init> callback
-	 * @return [void]
-	 */
-	public function onInitCallback(){
-		$this->registerPostTypeList();
-		$this->registerTaxonomyList();
 	}
 
 	/**

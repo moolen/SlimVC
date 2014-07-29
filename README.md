@@ -2,8 +2,13 @@
 This is a MVC Abstraction Layer on top of Wordpress. Seriously, the wordpress API sucks. This is a work-in-progress trial to fix it.
 This is heavily inspired by http://www.themosis.com/ (check it out!)
 
-
 # Features
+
+- First-class support for AdvancedCustomFields plugin
+- First-class support for WPML plugin
+- WP best-practices
+- OOP Wordpress API
+- Templating Engine
 
 ## Explicit Routing
 
@@ -156,6 +161,24 @@ $App->addInitializer(function(){
 });
 
 ```
+The SlimVC Class exposes a Event-Driven Api to register Callbacks to all wordpress action hooks  `muplugins_loaded, plugins_loaded, setup_theme, after_setup_theme, init, wp_loaded, template_redirect`.
+
+```PHP
+
+	$App->on('init', function(){
+		// do init stuff
+	});
+
+	$App->on('setup_theme', function(){
+		// do setup_theme stuff
+	});
+
+```
+
+# Requirements
+PHP 5.4
+Wordpress ~3.8
+
 
 # Installation
 clone this repository into your `themes/` folder.
