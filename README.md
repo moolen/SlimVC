@@ -15,7 +15,8 @@ This is heavily inspired by http://www.themosis.com/ (check it out!)
 $App = new App\Lib\SlimVC\SlimVC();
 
 // set the controller namespace
-$App->setControllerNamespace('\\App\\Controllers\\')
+// this is actually the default
+$App->setControllerNamespace('\\App\\Controllers\\');
 
 //
 // \App\Controllers\PageController will be instantiated
