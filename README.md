@@ -1,5 +1,5 @@
 # SlimVC
-This is a MVC Abstraction Layer on top of Wordpress. Seriously, the wordpress API sucks. This is a work-in-progress trial to fix it.
+This is a MVC Abstraction Layer on top of Wordpress. This is a work-in-progress trial to fix it.
 This is heavily inspired by http://www.themosis.com/ (check it out!)
 
 # Features
@@ -170,8 +170,8 @@ $App->on('setup_theme', function(){
 ```
 
 # Requirements
-PHP 5.4
-Wordpress ~3.8
+- PHP 5.4
+- Wordpress ~3.8
 
 
 # Installation
