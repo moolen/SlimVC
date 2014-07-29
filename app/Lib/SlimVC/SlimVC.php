@@ -133,6 +133,16 @@ class SlimVC{
 	}
 
 	/**
+	 * sets the controller Namespace
+	 * @param [string] $ns
+	 * @return SlimVC
+	 */
+	public function setControllerNamespace( $ns ){
+		$this->Router->setControllerNamespace($ns);
+		return $this;
+	}
+
+	/**
 	 * registers a Post type @wordpress
 	 * called @do_action <init>
 	 * @uses   register_post_type

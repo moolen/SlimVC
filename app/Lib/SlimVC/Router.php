@@ -7,7 +7,7 @@ use \App\Lib\SlimVC\Logger;
 class Router{
 
 	// otps & instances
-	public $controllerNamespace = '\\App\\Controllers\\';
+	protected $controllerNamespace = '\\App\\Controllers\\';
 	protected $Slim = null;
 	protected $options = array();
 	protected $Logger = null;
@@ -179,12 +179,31 @@ class Router{
 		$this->Slim->run();
 	}
 
+	/**
+	 * sets the Slim instance
+	 * @param SlimSlim $Slim
+	 */
 	public function setSlimInstance( \Slim\Slim $Slim){
 		$this->Slim = $Slim;
+		return $this;
 	}
 
+	/**
+	 * returns the Slim instance
+	 * @return [Slim]
+	 */
 	public function getSlimInstance(){
 		return $this->Slim;
+	}
+
+	/**
+	 * sets the controllerNamespace
+	 * @param [string] $ns
+	 * @return  Router
+	 */
+	public function setControllerNamespace( $ns ){
+		$this->controllerNamespace = $ns;
+		return $this;
 	}
 
 	/**
