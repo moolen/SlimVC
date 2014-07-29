@@ -12,7 +12,7 @@ class Router{
 	protected $options = array();
 	protected $Logger = null;
 	protected $logLevel = 0;
-	protected $enableLogging = true;
+	protected $enableLogging = false;
 
 	// routing vars
 	protected $explicitRoutes = array();

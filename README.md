@@ -136,9 +136,9 @@ class BooksModel implements \IteratorAggregate{
 
 ```
 
-## Twig as Templating Engine
+## Templating Engine
+Currently only Twig is supported, but per-se replaceable (https://github.com/codeguy/Slim-Views).
 Views are located in `app/Views/`.
-currently only Twig is supported, but per-se replaceable (https://github.com/codeguy/Slim-Views).
 
 The Twig Documentation is over here: http://twig.sensiolabs.org/documentation.
 
