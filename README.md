@@ -154,24 +154,18 @@ $App->registerPostType('Book', 'books', $args);
 // register CT
 $App->registerTaxonomy('Store', 'stores', $args);
 
-// add other initializers for libraries
-// called @do_action <template_redirect>
-$App->addInitializer(function(){
-	// do some stuff
-});
-
 ```
 The SlimVC Class exposes a Event-Driven Api to register Callbacks to all wordpress action hooks  `muplugins_loaded, plugins_loaded, setup_theme, after_setup_theme, init, wp_loaded, template_redirect`.
 
 ```PHP
 
-	$App->on('init', function(){
-		// do init stuff
-	});
+$App->on('init', function(){
+	// do init stuff
+});
 
-	$App->on('setup_theme', function(){
-		// do setup_theme stuff
-	});
+$App->on('setup_theme', function(){
+	// do setup_theme stuff
+});
 
 ```
 
