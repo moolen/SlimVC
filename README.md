@@ -19,7 +19,13 @@ Basic HTTP Methods are supported:
 - `DELETE`
 - `PATCH`
 
-The callback/constructor/classMethod will recieve 2 Arguments: first, a \Slim\Slim instance (aka $View) to render the view, get additional information from the HTTP Request. more Docs: http://docs.slimframework.com/#Request
+The callback/constructor/classMethod will recieve 2 Arguments: first, a `\Slim\Slim` instance (aka $View), second a $params array which holds the optional routing params (like /foo/:bar/:id)
+
+More Documentation about `\Slim\Slim`:
+
+http://docs.slimframework.com/#Request
+http://docs.slimframework.com/#Response
+http://docs.slimframework.com/#HTTP-Caching
 
 ```PHP
 // @functions.php
