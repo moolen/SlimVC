@@ -2,7 +2,7 @@
 
 return array(
 	'genre' => array(
-		'objectType' => 'books',
+		'postType' => 'books',
 		'args' => array(
 			'labels'            => array(
 				'name'              => _x( 'Genres', 'taxonomy general name' ),

@@ -101,7 +101,7 @@ class ConfigManager{
 			foreach( $ct as $slug=>$opts ){
 				
 				$args = null;
-				$objectType = 'post';
+				$postType = 'post';
 
 				if( is_array($opts) ){
 					
@@ -110,12 +110,12 @@ class ConfigManager{
 						$args = $opts['args'];
 					}
 
-					// check for objectType def
-					if( isset($opts['objectType']) && !empty($opts['objectType']) ){
-						$objectType = $opts['objectType'];
+					// check for postType def
+					if( isset($opts['postType']) && !empty($opts['postType']) ){
+						$postType = $opts['postType'];
 					}
 					// register
-					register_taxonomy($slug, $objectType, $args);
+					register_taxonomy($slug, $postType, $args);
 				}
 				
 			}
