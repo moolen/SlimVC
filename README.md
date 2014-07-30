@@ -338,6 +338,10 @@ return array(
 	)
 );
 ```
+## ACF
+With version 5 ACF field definitions are saved automatically as json inside the theme directory. With SlimVC those files are saved within `app/Config/acf`.
+
+
 ## Event API
 
 The SlimVC Class exposes a eventdriven API to register callbacks to all Wordpress action hooks  `muplugins_loaded, plugins_loaded, setup_theme, after_setup_theme, init, wp_loaded, template_redirect`.
