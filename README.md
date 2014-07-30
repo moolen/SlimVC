@@ -31,7 +31,7 @@ More Documentation about `\Slim\Slim`:
 // @functions.php
 
 // create Instance
-$App = new App\Lib\SlimVC\SlimVC();
+$App = App\Lib\SlimVC\SlimVC::getInstance();
 
 //
 // \App\Controllers\PageController is instantiated
