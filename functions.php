@@ -14,10 +14,6 @@ $App->Router->is(
 	), 'PageController'
 );
 
-$App->on('init', function(){
-	echo "init called";
-});
-
 $App->Router->is( '404', 'NotFoundController' );
 
 $App->Router->get( '/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController' );

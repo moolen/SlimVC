@@ -4,7 +4,7 @@ namespace App\Config;
 
 return array(
 
-	'debug' => true,
+	'debug' => false,
 	'namespace.controller' => '\\App\\Conrollers\\',
 	'slim' => array(
 		// env vars

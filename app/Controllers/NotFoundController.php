@@ -5,12 +5,12 @@ namespace App\Controllers;
 use \App\Lib\SlimVC\Controller as BaseController;
 
 class NotFoundController extends BaseController{
-	public function __construct( $view ){
-		parent::__construct( $view );
+	public function __construct( $App ){
+		parent::__construct( $App );
 		$this->render();
 	}
 
 	public function render(){
-		return $this->view->render('404.html');
+		return $this->App->render('404.html');
 	}
 }

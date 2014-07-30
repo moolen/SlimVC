@@ -28,7 +28,7 @@ class Router{
 		$this->logLevel = $this->Slim->log->getLevel();
 		$this->enableLogging = $this->parent->applicationConfiguration['debug'];
 
-		$this->Slim->view()->parserOptions = array('debug' => true);
+		$this->Slim->view()->parserOptions = array('debug' => $this->enableLogging);
 		$this->Slim->view()->parserExtensions = new TwigExtension();
 	}
 
@@ -41,7 +41,7 @@ class Router{
 	 */
 	protected function callSlimApi( $method, $path, $controller ){
 		$self = $this;
-		var_dump($method, $path);
+		//var_dump($method, $path);
 		if( 8 <= $this->logLevel && $this->enableLogging ){
 			$ctrl = $controller;
 			if( is_callable($controller) ){
