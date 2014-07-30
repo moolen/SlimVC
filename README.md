@@ -12,6 +12,15 @@ This is heavily inspired by http://www.themosis.com/ (check it out!)
 
 ## Explicit Routing
 
+Basic HTTP Methods are supported:
+- `GET`
+- `POST`
+- `PUT`
+- `DELETE`
+- `PATCH`
+
+The callback/constructor/classMethod will recieve 2 Arguments: first, a \Slim\Slim instance (aka $View) to render the view, get additional information from the HTTP Request. more Docs: http://docs.slimframework.com/#Request
+
 ```PHP
 // @functions.php
 
@@ -27,7 +36,17 @@ $App->setControllerNamespace('\\App\\Controllers\\');
 // when <wp-url>/foo is requested 
 // more on Controllers below
 $App->Router->get('/foo', 'PageController');
-$App->Router->get('/foo(/:bar?)', 'PostsController');
+$App->Router->post('/foo/:id', 'PostsController');
+$App->Router->put('/foo/:id)', 'PostsController');
+$App->Router->delete('/foo/:id)', 'PostsController');
+
+// also anonymous functions are supported.
+$App->Router->get('/fohk(/:yeah?)', function($View, $params){
+	// do stuff.
+});
+
+// also array form
+$App->Router->get('/fohk(/:yeah?)', ($myInstance, 'myMethod'));
 
 // matches
 // /books
@@ -38,6 +57,36 @@ $App->Router->get('/foo(/:bar?)', 'PostsController');
 // /books/one/two/
 $App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
 ```
+### Route Groups
+
+SlimVC API exposes \Slim\Slim Route Group API with slightly different conventions. The First argument of a routing callback is always a \Slim\Slim object (aka $View), the second is an array of routing params.
+
+http://docs.slimframework.com/#Route-Groups
+
+```PHP
+// /api group
+$App->Router->group('/api', function() use ($App){
+	// /library group
+	$App->Router->group('/library', function() use ($App){
+
+		$App->Router->get('/books/:id(/:stuff?)', function($View, $params){
+			$id = $params[0];
+			$stuff = $params[1];
+			echo 'book #' . $id;
+		});
+
+		$App->Router->post('/books/', function($View, $params){
+			echo 'creating book...';
+		});
+
+		$App->Router->put('/books/:id', function($View, $params){
+			$id = $params[0];
+			echo 'editing book #' . $id;
+		});
+	});
+});
+```
+
 ## Conditional Routing
 Internally conditional tags are used for the following routing method. Currently there are not all Conditional Tags supported. the supported ones are: `home, front_page, blog_page, admin, single, page, page_template, category, tag, tax, archive, search, singular, 404`.
 
@@ -176,7 +225,7 @@ $App->registerTaxonomy('Store', 'stores', $args);
 $App->addPageTemplate('Fresh Example Template', 'my-template');
 
 ```
-The SlimVC Class exposes a Event-Driven Api to register Callbacks to all wordpress action hooks  `muplugins_loaded, plugins_loaded, setup_theme, after_setup_theme, init, wp_loaded, template_redirect`.
+The SlimVC Class exposes a eventdriven API to register callbacks to all Wordpress action hooks  `muplugins_loaded, plugins_loaded, setup_theme, after_setup_theme, init, wp_loaded, template_redirect`.
 
 ```PHP
 
@@ -185,6 +234,10 @@ $App->on('init', function(){
 });
 
 $App->on('setup_theme', function(){
+	// do setup_theme stuff
+});
+
+$App->on('wp_load', function(){
 	// do setup_theme stuff
 });
 

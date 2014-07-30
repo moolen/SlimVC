@@ -142,7 +142,6 @@ class Router{
 
 		$matches = 0;
 		$count = count($conditions);
-		var_dump($conditions);
 
 		foreach( $conditions as $conditionKey => $conditionValue ){
 
@@ -176,13 +175,32 @@ class Router{
 	 * @return [void]
 	 */
 	protected function callController( $controller, array $params=array() ){
-		$baseNamespace = $this->controllerNamespace;
-		$class = $baseNamespace . $controller;
-		$reflection = new \ReflectionClass( $class );
-		$instance = $reflection->newInstanceArgs(array(
-			$this->Slim,
-			$params
-		));
+
+		// call controller name
+		// with $this->baseNamespace
+		if( is_string( $controller ) ){
+			$baseNamespace = $this->controllerNamespace;
+			$class = $baseNamespace . $controller;
+			if( class_exists($class) ){
+				$reflection = new \ReflectionClass( $class );
+				$instance = $reflection->newInstanceArgs(array(
+					$this->Slim,
+					$params
+				));
+			}else{
+				throw new Error("Class does not exist: " . $class);
+			}
+			
+		// otherwise check if a callable is submitted
+		}elseif( is_callable( $controller ) ){
+			call_user_func( $controller, $this->Slim, $params );
+		// else THROW err. since the controller is not valid.
+		}else{
+			var_dump($controller, $params);
+			throw new Error("controller is neither string nor callable.");
+		}
+
+		
 	}
 
 	/**
@@ -310,6 +328,10 @@ class Router{
 	// slim api shortcut
 	public function patch(){
 		$this->callSlimApi('patch', $path, $controller);
+	}
+
+	public function group($path, $callback){
+		$this->callSlimApi('group', $path, $callback);
 	}
 
 }
