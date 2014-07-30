@@ -39,8 +39,7 @@ $App->Router->get('/foo(/:bar?)', 'PostsController');
 $App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
 ```
 ## Conditional Routing
-Internally conditional tags are used for the following routing method. Currently there are not all Conditional Tags supported. the supported ones are: `home, front_page, blog_page, admin, single, page, (page_template), category, tag, tax, archive, search, singular, 404`.
-
+Internally conditional tags are used for the following routing method. Currently there are not all Conditional Tags supported. the supported ones are: `home, front_page, blog_page, admin, single, page, page_template, category, tag, tax, archive, search, singular, 404`.
 
 ```PHP
 // @functions.php
@@ -49,8 +48,28 @@ Internally conditional tags are used for the following routing method. Currently
 $App->Router->is('home', 'HomeController');
 $App->Router->is('page', 'PageController');
 $App->Router->is('404', 'NotFoundController');
+
+// must be singular and page
 $App->Router->is(array('singular', 'page'), 'PageController');
+
 ```
+
+You can also pass arguments to the conditional tags using an array as first argument. Above would be equal `array('home' => true)`.
+
+```PHP
+// you can define event more options like this:
+// this matches 
+// (page with id=5 OR slug=my-foo-slug OR title=My Page Taitle)
+// AND
+// page_template=my-template
+$App->Router->is(
+	array(
+		'page' => array('my-foo-slug', 'My Page Title'),
+		'page_template' => 'my-template'
+	), 'PageController'
+);
+```
+
 ## MVC Structure
 
 Checkout a controller in `app/Controllers/`.

@@ -75,7 +75,7 @@ class SlimVC{
 				'view' => new TwigView(),
 				'templates.path' => dirname(__FILE__) . '/../../Views',
 				'debug' => true,
-				'log.enabled' => true,
+				'log.enabled' => false,
 				'log.writer' => new Logger(),
 				'log.level' => \Slim\Log::DEBUG
 			),

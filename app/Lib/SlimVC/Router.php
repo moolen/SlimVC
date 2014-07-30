@@ -89,10 +89,15 @@ class Router{
 	protected function runConditionalRoutes(){
 		$routeMatches = false;
 		$routeController = false;
+		$conditions = array();
 
 		foreach( $this->conditionalRoutes as $conditionKey => $controller ){
 
-			$conditions = explode(',', $conditionKey);
+			// 
+			if( null === $conditions = (array) json_decode( $conditionKey ) ){
+				$conditions = $conditionKey;
+			}
+
 
 			// logging
 			if( 8 <= $this->logLevel && $this->enableLogging ){
@@ -137,9 +142,20 @@ class Router{
 
 		$matches = 0;
 		$count = count($conditions);
+		var_dump($conditions);
 
-		foreach($conditions as $condition){
-			if( true === $this->conditionalTags[ $condition ] ){
+		foreach( $conditions as $conditionKey => $conditionValue ){
+
+			// additional argument as associative array submitted
+			// like page_template => 'my-template'
+			if( 'true' !== $conditionValue && true !== $conditionValue){
+				$fn = 'is_' . $conditionKey;
+				$conditionalArguments = call_user_func($fn, $conditionValue);
+			}else{
+				$conditionalArguments = true;
+			}
+
+			if( true === $this->conditionalTags[ $conditionKey ] && $conditionalArguments ){
 				$matches++;
 			}
 		}
@@ -214,9 +230,19 @@ class Router{
 	 */
 	public function is( $conditionals, $controller ){
 		if( is_string( $conditionals) ){
-			$this->conditionalRoutes[ $conditionals ] = $controller;
+			$key = json_encode( array( $conditionals => true) );
+			$this->conditionalRoutes[ $key ] = $controller;
 		}elseif( is_array($conditionals) ){
-			$key = implode(',', $conditionals);
+
+			// we have to translate true to "true"
+			foreach( $conditionals as $key => $value ){
+				if( !is_int( $key ) && true === $value ){
+					$conditionals[$key] = 'true';
+				}
+			}
+
+			$key = json_encode($conditionals);
+
 			$this->conditionalRoutes[$key] = $controller;
 		}
 
