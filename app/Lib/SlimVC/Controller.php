@@ -7,9 +7,9 @@ use \Slim\View as SlimView;
 
 class Controller extends SlimView{
 	
-	public function __construct( $View ){
+	public function __construct( $App ){
 		global $post;
-		$this->view = $View;
+		$this->App = $App;
 		$this->post = new \App\Lib\SlimVC\PostModel( $post );
 	}
 }

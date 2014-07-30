@@ -19,7 +19,7 @@ Basic HTTP Methods are supported:
 - `DELETE`
 - `PATCH`
 
-The callback/constructor/classMethod will recieve 2 Arguments: first, a `\Slim\Slim` instance (aka $View), second a $params array which holds the optional routing params (like /foo/:bar/:id)
+The callback/constructor/classMethod will recieve 2 Arguments: first, a `\Slim\Slim` instance (aka $App), second a $params array which holds the optional routing params (like /foo/:bar/:id)
 
 More Documentation about `\Slim\Slim`:
 
@@ -33,10 +33,6 @@ More Documentation about `\Slim\Slim`:
 // create Instance
 $App = new App\Lib\SlimVC\SlimVC();
 
-// set the controller namespace
-// this is actually the default
-$App->setControllerNamespace('\\App\\Controllers\\');
-
 //
 // \App\Controllers\PageController is instantiated
 // when <wp-url>/foo is requested 
@@ -47,7 +43,7 @@ $App->Router->put('/foo/:id)', 'PostsController');
 $App->Router->delete('/foo/:id)', 'PostsController');
 
 // also anonymous functions are supported.
-$App->Router->get('/fohk(/:yeah?)', function($View, $params){
+$App->Router->get('/fohk(/:yeah?)', function($App, $params){
 	// do stuff.
 });
 
@@ -65,7 +61,7 @@ $App->Router->get('/books(/?)(/:book(/?)(/:another(/?)?))', 'BooksController');
 ```
 ### Route Groups
 
-SlimVC API exposes \Slim\Slim Route Group API with slightly different conventions. The First argument of a routing callback is always a \Slim\Slim object (aka $View), the second is an array of routing params.
+SlimVC API exposes \Slim\Slim Route Group API with slightly different conventions. The First argument of a routing callback is always a \Slim\Slim object (aka $App), the second is an array of routing params.
 
 http://docs.slimframework.com/#Route-Groups
 
@@ -75,17 +71,17 @@ $App->Router->group('/api', function() use ($App){
 	// /library group
 	$App->Router->group('/library', function() use ($App){
 
-		$App->Router->get('/books/:id(/:stuff?)', function($View, $params){
+		$App->Router->get('/books/:id(/:stuff?)', function($App, $params){
 			$id = $params[0];
 			$stuff = $params[1];
 			echo 'book #' . $id;
 		});
 
-		$App->Router->post('/books/', function($View, $params){
+		$App->Router->post('/books/', function($App, $params){
 			echo 'creating book...';
 		});
 
-		$App->Router->put('/books/:id', function($View, $params){
+		$App->Router->put('/books/:id', function($App, $params){
 			$id = $params[0];
 			echo 'editing book #' . $id;
 		});
@@ -139,12 +135,12 @@ use \App\Models\BooksModel as BooksModel;
 class BooksController extends BaseController{
 
 	// params holds (:book) and (:another) url params
-	// $View is a \Slim\Slim instance
-	public function __construct( $View, $params ){
+	// $App is a \Slim\Slim instance
+	public function __construct( $App, $params ){
 		
-		// construct the parent to set $View 
+		// construct the parent to set $App 
 		// and global $post
-		parent::__construct( $View );
+		parent::__construct( $App );
 		$this->BooksModel = new BooksModel();
 		
 		// dont forget to call render()
@@ -155,7 +151,7 @@ class BooksController extends BaseController{
 	public function render(){
 		// 1st arg: the view path (relative to app/Views)
 		// 2nd arg: the data to be injected into the view
-		return $this->view->render('posts.html',
+		return $this->App->render('posts.html',
 			array(
 				'posts' => $this->BooksModel
 			)
@@ -215,22 +211,133 @@ Views are located in `app/Views/`.
 
 The Twig Documentation is over here: http://twig.sensiolabs.org/documentation.
 
-## WPAL
-Wordpress Abstraction Layer for `Custom Post Types`, `Custom Taxonomies`, and the ACF Plugin. More APIs soon.
+## Configuration
+All Configuration is done in `app/Config` Folder. This include the registration of custom post types, custom taxonomies, menus, sidebars, image size definition and post-templates.
+
+Image size definition inside `images.php`:
+```PHP
+return array(
+	'my_size' => array(200, 256),
+	'my_size_cropped' => array(200, 256, true),
+);
+```
+
+Menu configuration in `menus.php`:
+```PHP
+return array(
+	// slug         -> Pretty name   
+	'header-nav'	=> 'Header navigation',
+	'footer-nav'	=> 'Footer navigation'
+);
+```
+
+Post type definition in `postType.php`:
+```PHP
+return array(
+	// CPT name -> array
+	'books' => array(
+			'labels'             =>  array(
+				'name'               => _x( 'Books', 'post type general name', 'your-plugin-textdomain' ),
+				'singular_name'      => _x( 'Book', 'post type singular name', 'your-plugin-textdomain' ),
+				'menu_name'          => _x( 'Books', 'admin menu', 'your-plugin-textdomain' ),
+				'name_admin_bar'     => _x( 'Book', 'add new on admin bar', 'your-plugin-textdomain' ),
+				'add_new'            => _x( 'Add New', 'book', 'your-plugin-textdomain' ),
+				'add_new_item'       => __( 'Add New Book', 'your-plugin-textdomain' ),
+				'new_item'           => __( 'New Book', 'your-plugin-textdomain' ),
+				'edit_item'          => __( 'Edit Book', 'your-plugin-textdomain' ),
+				'view_item'          => __( 'View Book', 'your-plugin-textdomain' ),
+				'all_items'          => __( 'All Books', 'your-plugin-textdomain' ),
+				'search_items'       => __( 'Search Books', 'your-plugin-textdomain' ),
+				'parent_item_colon'  => __( 'Parent Books:', 'your-plugin-textdomain' ),
+				'not_found'          => __( 'No books found.', 'your-plugin-textdomain' ),
+				'not_found_in_trash' => __( 'No books found in Trash.', 'your-plugin-textdomain' )
+			),
+		'public'             => true,
+		'publicly_queryable' => true,
+		'show_ui'            => true,
+		'show_in_menu'       => true,
+		'query_var'          => true,
+		'rewrite'            => array( 'slug' => 'book' ),
+		'capability_type'    => 'post',
+		'has_archive'        => true,
+		'hierarchical'       => false,
+		'menu_position'      => null,
+		'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' )
+	)
+);
+```
+
+Sidebar definition in `sidebars.php`:
+```PHP
+return array(
+	array(
+		'name'			=> 'Blog',
+		'id'			=> 'blog-sidebar',
+		'description'	=> 'Blog sidebar.',
+		'before_widget'	=> '<div class="sidebar-widget"><div class="sidebar-widget_content">',
+		'after_widget'	=> '</div></div>',
+		'before_title'	=> '<h4>',
+		'after_title'	=> '</h4>'
+	)
+);
+```
+Custom taxonomies in `taxonomies.php`:
 
 ```PHP
-
-// register CPT
-// signature: string $label, string $slug, optional array $args
-$App->registerPostType('Book', 'books', $args);
-
-// register CT
-$App->registerTaxonomy('Store', 'stores', $args);
-
-// add Page Template programatically
-$App->addPageTemplate('Fresh Example Template', 'my-template');
-
+return array(
+	'genre' => array(
+		'objectType' => 'books',
+		'args' => array(
+			'labels'            => array(
+				'name'              => _x( 'Genres', 'taxonomy general name' ),
+				'singular_name'     => _x( 'Genre', 'taxonomy singular name' ),
+				'search_items'      => __( 'Search Genres' ),
+				'all_items'         => __( 'All Genres' ),
+				'parent_item'       => __( 'Parent Genre' ),
+				'parent_item_colon' => __( 'Parent Genre:' ),
+				'edit_item'         => __( 'Edit Genre' ),
+				'update_item'       => __( 'Update Genre' ),
+				'add_new_item'      => __( 'Add New Genre' ),
+				'new_item_name'     => __( 'New Genre Name' ),
+				'menu_name'         => __( 'Genre' ),
+			),
+			'hierarchical'      => true,
+			'show_ui'           => true,
+			'show_admin_column' => true,
+			'query_var'         => true,
+			'rewrite'           => array( 'slug' => 'genre' ),
+		)
+	)
+);
 ```
+
+And also page-templates can be defined in `templates.php`:
+```PHP
+return array(
+	// slug       ->  pretty name
+	'my-template' => 'Fresh Example Template'
+);
+``` 
+And last but not least we have a application configuration inside `application.php`:
+```PHP
+return array(
+	// global debug mode
+	'debug' => true,
+	'namespace.controller' => '\\App\\Conrollers\\',
+	'slim' => array(
+		// env vars
+		'log.enabled' => true,
+		'log.writer' => new \App\Lib\SlimVC\Logger(),
+		'log.level' => \Slim\Log::DEBUG,
+
+		// view & templating
+		'view' => new \Slim\Views\Twig(),
+		'templates.path' => dirname(__FILE__) . '/../Views',
+	)
+);
+```
+## Event API
+
 The SlimVC Class exposes a eventdriven API to register callbacks to all Wordpress action hooks  `muplugins_loaded, plugins_loaded, setup_theme, after_setup_theme, init, wp_loaded, template_redirect`.
 
 ```PHP

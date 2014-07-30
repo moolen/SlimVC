@@ -1,9 +1,10 @@
 <?php
 namespace App\Lib\SlimVC;
 
-use \Slim\Slim as libSlim;
+use \Slim\Slim as Slim;
 use \Slim\Views\Twig as TwigView;
-use \App\Lib\SlimVC\PageTemplate as PageTemplate;
+use \App\Lib\SlimVC\ConfigManager as ConfigManager;
+use \App\Lib\SlimVC\WPHelper as WPHelper;
 use \App\Lib\SlimVC\Router as Router;
 use \App\Lib\SlimVC\Logger as Logger;
 
@@ -23,10 +24,10 @@ class SlimVC{
 	use \Nekoo\EventEmitter;
 
 	/**
-	 * holds our merged slimOptions
-	 * @var [array]
+	 * holds our singleton 
+	 * @var [SlimVC]
 	 */
-	protected $slimOptions = null;
+	private static $instance = null;
 
 	/**
 	 * holds a list of functions which will be called
@@ -36,18 +37,18 @@ class SlimVC{
 	protected $initializerList = array();
 
 	/**
-	 * holds the post type registration argumets
-	 * they will be called @do_action <init>
-	 * @var array
+	 * holds our merged slimOptions
+	 * @var [array]
 	 */
-	protected $postTypeList = array();
+	public $slimOptions = null;
 
 	/**
-	 * holds the taxonomy registration arguments
-	 * they will be called @do_cation <init>
+	 * our application configuration
+	 * this is set by ConfigurationManager
+	 * which uses app/Config/application.php
 	 * @var array
 	 */
-	protected $taxonomyList = array();
+	public $applicationConfiguration = array();
 
 	/**
 	 * holds our Router class
@@ -56,10 +57,11 @@ class SlimVC{
 	public $Router = null;
 
 	/**
-	 * holds our Template class
-	 * @var [PageTemplate]
+	 * private clone method.
+	 * we dont want this object to be cloned from outside
+	 * @return [void]
 	 */
-	protected $PageTemplate = null;
+	private function __clone(){}
 
 	/**
 	 * sets the slimOptions, registers the wp-core-callbacks
@@ -67,25 +69,22 @@ class SlimVC{
 	 * @param [array] $slimOptions [description]
 	 * @uses  add_action [wordpress-core]
 	 */
-	public function __construct( array $slimOptions = array() ){
+	private function __construct(){
 
 		// merge & save opts
-		$this->slimOptions = array_merge(
-			array(
-				'view' => new TwigView(),
-				'templates.path' => dirname(__FILE__) . '/../../Views',
-				'debug' => true,
-				'log.enabled' => false,
-				'log.writer' => new Logger(),
-				'log.level' => \Slim\Log::DEBUG
-			),
-			$slimOptions
+		$this->slimOptions = array(
+			'view' => new TwigView(),
+			'templates.path' => dirname(__FILE__) . '/../../Views',
+			'debug' => false,
+			'log.enabled' => false,
+			//'log.writer' => new Logger(),
+			//'log.level' => \Slim\Log::DEBUG
 		);
 
-		// instantiate Router 
-		$this->Router = new Router( new libSlim( $this->slimOptions ) );
-
-		$this->PageTemplate = new PageTemplate();
+		// init helper classes 
+		$this->ConfigManager = new ConfigManager( $this );
+		$this->Slim = new Slim( $this->slimOptions );
+		$this->Slim->Router = new Router( $this );
 
 		// add necessary action & filter callbacks
 		add_action( 'muplugins_loaded', array($this, 'onMuPluginsLoaded') );		
@@ -109,23 +108,27 @@ class SlimVC{
 	}
 
 	/**
-	 * registers all post types
-	 * @return [void]
+	 * sets the ACF-Export path for the json files.
+	 * on each save on a field group the json is created.
+	 * @return  [void]
 	 */
-	protected function registerPostTypeList(){
-		foreach( $this->postTypeList as $slug => $args ){
-			register_post_type( $slug, $args );
+	protected function setAcfJsonPath(){
+		if( is_admin() && function_exists('acf_update_setting') && function_exists('acf_append_setting') ){
+			acf_update_setting('save_json', get_stylesheet_directory() . '/app/Config/acf');
+			acf_append_setting('load_json', get_stylesheet_directory() . '/app/Config/acf');
 		}
 	}
 
 	/**
-	 * registers custom taxonomies
-	 * @return [void]
+	 * singleton constructor / getter
+	 * @param  [array] $opts
+	 * @return [SlimVC]
 	 */
-	protected function registerTaxonomyList(){
-		foreach( $this->taxonomyList as $slug => $args ){
-			register_taxonomy($slug, $args);
+	public static function getInstance( array $opts = array() ){
+		if( null === self::$instance ){
+			self::$instance = new self($opts);
 		}
+		return self::$instance->Slim;
 	}
 
 	/**
@@ -166,8 +169,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onInit(){
-		$this->registerPostTypeList();
-		$this->registerTaxonomyList();
+		$this->setAcfJsonPath();
 		$this->emit('init');
 	}
 
@@ -185,93 +187,12 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onTemplateRedirect(){
-		$this->Router->setConditionalTags();
-		$this->Router->assignRoutes();
+		$this->Slim->Router->setConditionalTags();
+		$this->Slim->Router->assignRoutes();
 		$this->callInitializers();
-		$this->Router->run();
+		$this->Slim->Router->run();
 		$this->emit('template_redirect');
 		exit;
-	}
-
-	/**
-	 * adds a callback to initializerList
-	 * which will be called after Slim is initialized
-	 * @param [function] $fn
-	 */
-	public function addInitializer( $fn ){
-		$this->initializerList[] = $fn;
-		return $this;
-	}
-
-	public function addPageTemplate($name, $slug){
-		$this->PageTemplate->addPageTemplate($name, $slug);
-		return $this;
-	}
-
-	/**
-	 * sets the controller Namespace
-	 * @param [string] $ns
-	 * @return SlimVC
-	 */
-	public function setControllerNamespace( $ns ){
-		$this->Router->setControllerNamespace($ns);
-		return $this;
-	}
-
-	/**
-	 * registers a Post type @wordpress
-	 * called @do_action <init>
-	 * @uses   register_post_type
-	 * 
-	 * @param  [type] $name
-	 * @param  [type] $slug
-	 * @param  array  $args
-	 * @return SlimVC
-	 */
-	public function registerPostType( $name, $slug, array $args = array() ){
-		$this->postTypeList[ $slug ] = array_merge(
-			// defaults
-			array(
-				'public' => true,
-				'publicly_queryable' => true,
-				'show_ui' => true,
-				'show_in_menu' => true,
-				'rewrite' => array(
-					'slug' => $slug
-				),
-				'labels' => array(
-					'name' => $name
-				)
-			),
-			// users overrides
-			$args
-		);
-
-		return $this;
-	}
-
-	/**
-	 * registers a custom Taxonomy
-	 * called @do_action <init>
-	 * @uses  register_taxonomy
-	 * @param  [string] $name
-	 * @param  [string] $slug
-	 * @param  [array]  $args
-	 * @return SlimVC
-	 */
-	public function registerTaxonomy( $name, $slug, array $args = array() ){
-		$this->taxonomyList[ $slug ] = array_merge(
-			//defaults
-			array(
-				'labels' => array(
-					'name' => $name
-				)
-			),
-			// user opts
-			$args
-		);
-
-		return $this;
 	}
 
 }

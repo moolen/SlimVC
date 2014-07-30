@@ -19,15 +19,17 @@ class Router{
 	protected $conditionalTags = array(); 
 	protected $conditionalRoutes = array();
 
-	public function __construct( \Slim\Slim $slimInstance ){
-		$this->Slim = $slimInstance;
+	public function __construct( $parent ){
+		$this->parent = $parent;
+		$this->Slim = $parent->Slim;
 		$this->Logger = new Logger();
 
 		// inherit loglevel from Slim instance
-		$this->logLevel = $slimInstance->log->getLevel();
+		$this->logLevel = $this->Slim->log->getLevel();
+		$this->enableLogging = $this->parent->applicationConfiguration['debug'];
 
-		$slimInstance->view()->parserOptions = array('debug' => true);
-		$slimInstance->view()->parserExtensions = new TwigExtension();
+		$this->Slim->view()->parserOptions = array('debug' => true);
+		$this->Slim->view()->parserExtensions = new TwigExtension();
 	}
 
 	/**
@@ -39,9 +41,13 @@ class Router{
 	 */
 	protected function callSlimApi( $method, $path, $controller ){
 		$self = $this;
-
+		var_dump($method, $path);
 		if( 8 <= $this->logLevel && $this->enableLogging ){
-			$this->Logger->write('adding route: ' . $method . '('.$path.') :: ' . $controller);
+			$ctrl = $controller;
+			if( is_callable($controller) ){
+				$ctrl = 'Closure';
+			}
+			$this->Logger->write('adding route: ' . $method . '('.$path.') :: ' . $ctrl);
 		}
 		
 		// e.g. $slim->get($path, $callback); the $callback calls the defined controller.
@@ -188,7 +194,8 @@ class Router{
 					$params
 				));
 			}else{
-				throw new Error("Class does not exist: " . $class);
+				var_dump($class);
+				trigger_error("Class does not exist: " . $class);
 			}
 			
 		// otherwise check if a callable is submitted
@@ -311,22 +318,22 @@ class Router{
 	}
 
 	// slim api shortcut
-	public function post(){
+	public function post($path, $controller){
 		$this->callSlimApi('post', $path, $controller);
 	}
 
 	// slim api shortcut
-	public function put(){
+	public function put($path, $controller){
 		$this->callSlimApi('put', $path, $controller);
 	}
 
 	// slim api shortcut
-	public function delete(){
+	public function delete($path, $controller){
 		$this->callSlimApi('delete', $path, $controller);
 	}
 
 	// slim api shortcut
-	public function patch(){
+	public function patch($path, $controller){
 		$this->callSlimApi('patch', $path, $controller);
 	}
 
