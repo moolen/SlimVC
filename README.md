@@ -23,9 +23,9 @@ The callback/constructor/classMethod will recieve 2 Arguments: first, a `\Slim\S
 
 More Documentation about `\Slim\Slim`:
 
-http://docs.slimframework.com/#Request
-http://docs.slimframework.com/#Response
-http://docs.slimframework.com/#HTTP-Caching
+- http://docs.slimframework.com/#Request
+- http://docs.slimframework.com/#Response
+- http://docs.slimframework.com/#HTTP-Caching
 
 ```PHP
 // @functions.php
