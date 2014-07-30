@@ -57,14 +57,13 @@ $App->Router->is(array('singular', 'page'), 'PageController');
 You can also pass arguments to the conditional tags using an array as first argument. Above would be equal `array('home' => true)`.
 
 ```PHP
-// you can define event more options like this:
-// this matches 
-// (page with id=5 OR slug=my-foo-slug OR title=My Page Taitle)
+// this matches :
+// (page with id=5 OR slug='my-foo-slug' OR title='My Page Title')
 // AND
-// page_template=my-template
+// page_template='my-template'
 $App->Router->is(
 	array(
-		'page' => array('my-foo-slug', 'My Page Title'),
+		'page' => array(5, 'my-foo-slug', 'My Page Title'),
 		'page_template' => 'my-template'
 	), 'PageController'
 );
