@@ -1,27 +1,14 @@
 <?php
 namespace App\Lib\SlimVC;
 
-use \Slim\Slim as Slim;
 use \Slim\Views\Twig as TwigView;
+use \App\Lib\SlimVC\SlimExtension as Slim;
 use \App\Lib\SlimVC\ConfigManager as ConfigManager;
 use \App\Lib\SlimVC\WPHelper as WPHelper;
 use \App\Lib\SlimVC\Router as Router;
 use \App\Lib\SlimVC\Logger as Logger;
 
 class SlimVC{
-
-	/**
-	 * PHP 5.4 Trait 
-	 * inherits Methods like:
-	 * 
-	 * .on('event', $foo, $bar)
-	 * .once('event', $foo, $bar)
-	 * .off('event', $callable)
-	 * .emit('event', $foo, $bar)
-	 * .addListener('event', $callable)
-	 * .removeListener('event', $callable)
-	 */
-	use \Nekoo\EventEmitter;
 
 	/**
 	 * holds our singleton 
@@ -136,7 +123,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onMuPluginsLoaded(){
-		$this->emit('muplugins_loaded');
+		$this->Slim->emit('muplugins_loaded');
 	}
 
 	/**
@@ -144,7 +131,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onPluginsLoaded(){
-		$this->emit('plugins_loaded');
+		$this->Slim->emit('plugins_loaded');
 	}
 
 	/**
@@ -152,7 +139,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onSetupTheme(){
-		$this->emit('setup_theme');
+		$this->Slim->emit('setup_theme');
 	}
 
 	/**
@@ -160,7 +147,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onAfterSetupTheme(){
-		$this->emit('after_setup_theme');
+		$this->Slim->emit('after_setup_theme');
 	}
 
 	/**
@@ -170,7 +157,8 @@ class SlimVC{
 	 */
 	public function onInit(){
 		$this->setAcfJsonPath();
-		$this->emit('init');
+		$this->ConfigManager->initWpHooks();
+		$this->Slim->emit('init');
 	}
 
 	/**
@@ -178,7 +166,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onWpLoaded(){
-		$this->emit('wp_loaded');
+		$this->Slim->emit('wp_loaded');
 	}
 
 	/**
@@ -191,7 +179,7 @@ class SlimVC{
 		$this->Slim->Router->assignRoutes();
 		$this->callInitializers();
 		$this->Slim->Router->run();
-		$this->emit('template_redirect');
+		$this->Slim->emit('template_redirect');
 		exit;
 	}
 

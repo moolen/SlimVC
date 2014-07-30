@@ -287,8 +287,7 @@ Custom taxonomies in `taxonomies.php`:
 ```PHP
 return array(
 	'genre' => array(
-		// string or array
-		// post type(s)
+		// string or array of post type(s)
 		'postType' => 'books',
 		'args' => array(
 			'labels'            => array(

@@ -89,42 +89,41 @@ class ConfigManager{
 
 	/**
 	 * sets up the CT & CPT registration hooks
+	 * this is called from SlimVC
 	 * @return [void]
 	 */
-	protected function initWpHooks(){
+	public function initWpHooks(){
 		$ct = $this->taxonomies;
 		$cpt = $this->postTypes;
 
-		$this->parent->on('init', function() use ($ct, $cpt) {
 			
-			// register CT
-			foreach( $ct as $slug=>$opts ){
+		// register CT
+		foreach( $ct as $slug=>$opts ){
+			
+			$args = null;
+			$postType = 'post';
+
+			if( is_array($opts) ){
 				
-				$args = null;
-				$postType = 'post';
-
-				if( is_array($opts) ){
-					
-					// check for args array
-					if( isset($opts['args']) && is_array($opts['args']) && !empty($opts['args']) ){
-						$args = $opts['args'];
-					}
-
-					// check for postType def
-					if( isset($opts['postType']) && !empty($opts['postType']) ){
-						$postType = $opts['postType'];
-					}
-					// register
-					register_taxonomy($slug, $postType, $args);
+				// check for args array
+				if( isset($opts['args']) && is_array($opts['args']) && !empty($opts['args']) ){
+					$args = $opts['args'];
 				}
-				
-			}
 
-			// register CPT
-			foreach($cpt as $slug=>$opts){
-				register_post_type($slug, $opts);
+				// check for postType def
+				if( isset($opts['postType']) && !empty($opts['postType']) ){
+					$postType = $opts['postType'];
+				}
+				// register
+				register_taxonomy($slug, $postType, $args);
 			}
-		});
+			
+		}
+
+		// register CPT
+		foreach($cpt as $slug=>$opts){
+			register_post_type($slug, $opts);
+		}
 	}
 
 }
