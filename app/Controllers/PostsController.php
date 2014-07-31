@@ -2,12 +2,12 @@
 
 namespace App\Controllers;
 
-use \App\Lib\SlimVC\Controller as BaseController;
 use \App\Models\PostsModel as PostsModel;
+use \App\Lib\SlimVC\PostModel as PostModel;
 
-class PostsController extends BaseController{
+class PostsController{
 	public function __construct( $App ){
-		parent::__construct( $App );
+		$this->App = $App;
 		$this->PostsModel = new PostsModel();
 		$this->render();
 	}
@@ -15,7 +15,8 @@ class PostsController extends BaseController{
 	public function render(){
 		return $this->App->render('posts.html',
 			array(
-				'posts' => $this->PostsModel
+				'posts' => $this->PostsModel,
+				'type' => 'posts'
 			)
 		);
 	}

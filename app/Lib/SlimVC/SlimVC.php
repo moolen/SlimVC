@@ -2,7 +2,8 @@
 namespace App\Lib\SlimVC;
 
 use \Slim\Views\Twig as TwigView;
-use \App\Lib\SlimVC\SlimExtension as Slim;
+use \Slim\Slim as Slim;
+use \Pagon\EventEmitter as EventEmitter;
 use \App\Lib\SlimVC\ConfigManager as ConfigManager;
 use \App\Lib\SlimVC\WPHelper as WPHelper;
 use \App\Lib\SlimVC\Router as Router;
@@ -71,6 +72,7 @@ class SlimVC{
 		// init helper classes 
 		$this->ConfigManager = new ConfigManager( $this );
 		$this->Slim = new Slim( $this->slimOptions );
+		$this->Slim->Vent = new EventEmitter();
 		$this->Slim->Router = new Router( $this );
 
 		// add necessary action & filter callbacks
@@ -123,7 +125,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onMuPluginsLoaded(){
-		$this->Slim->emit('muplugins_loaded');
+		$this->Slim->Vent->emit('muplugins_loaded');
 	}
 
 	/**
@@ -131,7 +133,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onPluginsLoaded(){
-		$this->Slim->emit('plugins_loaded');
+		$this->Slim->Vent->emit('plugins_loaded');
 	}
 
 	/**
@@ -139,7 +141,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onSetupTheme(){
-		$this->Slim->emit('setup_theme');
+		$this->Slim->Vent->emit('setup_theme');
 	}
 
 	/**
@@ -147,7 +149,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onAfterSetupTheme(){
-		$this->Slim->emit('after_setup_theme');
+		$this->Slim->Vent->emit('after_setup_theme');
 	}
 
 	/**
@@ -158,7 +160,7 @@ class SlimVC{
 	public function onInit(){
 		$this->setAcfJsonPath();
 		$this->ConfigManager->initWpHooks();
-		$this->Slim->emit('init');
+		$this->Slim->Vent->emit('init');
 	}
 
 	/**
@@ -166,7 +168,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onWpLoaded(){
-		$this->Slim->emit('wp_loaded');
+		$this->Slim->Vent->emit('wp_loaded');
 	}
 
 	/**
@@ -179,7 +181,7 @@ class SlimVC{
 		$this->Slim->Router->assignRoutes();
 		$this->callInitializers();
 		$this->Slim->Router->run();
-		$this->Slim->emit('template_redirect');
+		$this->Slim->Vent->emit('template_redirect');
 		exit;
 	}
 

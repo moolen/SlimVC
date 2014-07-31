@@ -11,8 +11,8 @@ class Router{
 	protected $Slim = null;
 	protected $options = array();
 	protected $Logger = null;
-	protected $logLevel = 0;
-	protected $enableLogging = false;
+	public $logLevel = 0;
+	public $enableLogging = false;
 
 	// routing vars
 	protected $explicitRoutes = array();
@@ -92,7 +92,7 @@ class Router{
 	 * returns true if route was found otherwise false.
 	 * @return [boolean]
 	 */
-	protected function runConditionalRoutes(){
+	public function runConditionalRoutes(){
 		$routeMatches = false;
 		$routeController = false;
 		$conditions = array();
@@ -180,7 +180,7 @@ class Router{
 	 * @param  [array] $params
 	 * @return [void]
 	 */
-	protected function callController( $controller, array $params=array() ){
+	public function callController( $controller, array $params=array() ){
 
 		// call controller name
 		// with $this->baseNamespace
@@ -288,8 +288,8 @@ class Router{
 		// use default Route
 		// which handles the conditional Logic
 		$this->Slim->get('/.*?', function() use (&$self){
-			if( 8 <= $this->logLevel && $this->enableLogging ){
-				$this->Logger->write('checking conditional routes...');
+			if( 8 <= $self->logLevel && $self->enableLogging ){
+				$self->Logger->write('checking conditional routes...');
 			}
 			if( false === $self->runConditionalRoutes() ){
 				echo "no routes found.";

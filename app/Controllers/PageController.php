@@ -2,12 +2,11 @@
 
 namespace App\Controllers;
 
-use \App\Lib\SlimVC\Controller as BaseController;
 use \Slim\Views\Twig as Twig;
 
-class PageController extends BaseController{
+class PageController{
 	public function __construct( $App ){
-		parent::__construct( $App );
+		$this->App = $App;
 		$this->render();
 	}
 

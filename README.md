@@ -2,14 +2,6 @@
 This is a MVC Abstraction Layer on top of Wordpress. This is a work-in-progress trial to fix it.
 This is heavily inspired by http://www.themosis.com/ (check it out!)
 
-# Features
-
-- First-class support for AdvancedCustomFields plugin
-- First-class support for WPML plugin
-- WP best-practices
-- OOP Wordpress API
-- Templating Engine
-
 ## Explicit Routing
 
 Basic HTTP Methods are supported:
@@ -122,38 +114,37 @@ $App->Router->is(
 
 ## MVC Structure
 
+### Controller
+
 Checkout a controller in `app/Controllers/`.
 
-Sample from Above: A route matches /books(/:book(/:another))
+How you implement the Controller is up to you. This is a demonstration of how it could be implemented.
+The constructor always gets 2 arguments: 
+
+- 1. $App instance
+- 2. $params array containing optional route parameter
+
+with the $App instance you can render a view with:
+`$App->render('path/to/view.ext', array('inject' => 'this variable into view'))`
 
 ```PHP
 namespace App\Controllers;
 
-use \App\Lib\SlimVC\Controller as BaseController;
-use \App\Models\BooksModel as BooksModel;
+use \App\Models\PostsModel as PostsModel;
 
-class BooksController extends BaseController{
-
-	// params holds (:book) and (:another) url params
-	// $App is a \Slim\Slim instance
+class PostsController{
 	public function __construct( $App, $params ){
-		
-		// construct the parent to set $App 
-		// and global $post
-		parent::__construct( $App );
-		$this->BooksModel = new BooksModel();
-		
-		// dont forget to call render()
+		$this->App = $App;
+		$this->params = $params;
+		$this->PostsModel = new PostsModel();
 		$this->render();
 	}
-	
-	// render has to return a <html> string
+
 	public function render(){
-		// 1st arg: the view path (relative to app/Views)
-		// 2nd arg: the data to be injected into the view
 		return $this->App->render('posts.html',
 			array(
-				'posts' => $this->BooksModel
+				'posts' => $this->PostsModel,
+				'type' => 'posts'
 			)
 		);
 	}
@@ -161,7 +152,10 @@ class BooksController extends BaseController{
 
 ```
 
+### Models
+
 Checkout a model in `app/Models/`.
+This is also a example of how you could implement Models.
 
 ```PHP
 
@@ -205,7 +199,35 @@ class BooksModel implements \IteratorAggregate{
 
 ```
 
-## Templating Engine
+### PostModel 
+
+SlimVC comes with a common abstraction of the WP_Post Object (`\App\Lib\SlimVC\PostModel`).
+This provides you a neat interface to the WP_Post Object:
+
+- $PostModel->getTitle($strlen, $raw, $closure, $ellipsis)
+- $PostModel->getPost()
+- $PostModel->getContent($strlen, $raw, $ellipsis)
+- $PostModel->getFeaturedImageUrl()
+- $PostModel->getCustomField($name)
+- $PostModel->getDate($format)
+- $PostModel->getSubPosts( $args )
+- $PostModel->hasSubPosts()
+- $PostModel->isChildOf( $parent )
+- $PostModel->isInCategory($slug)
+- PostModel::get_a_Title($post, $strlen, $raw, $ellipsis)
+- PostModel::get_a_CustomField($post, $name)
+- PostModel::get_a_FeaturedImageUrl($post)
+- PostModel::get_a_Date($post, $format)
+- PostModel::get_the_CustomFields($post)
+- PostModel::get_the_subPosts($post, $args)
+- PostModel::get_a_PostBySlug($slug, $wpPostObj)
+- PostModel::has_PostSubPosts($post)
+- PostModel::is_PostChildOf($post, $parent)
+- PostModel::is_PostInCategory($post, $slug)
+
+(detailed documentation coming soon)
+
+### Views / Templating Engine
 Currently only Twig is supported, but per-se replaceable (https://github.com/codeguy/Slim-Views).
 Views are located in `app/Views/`.
 
@@ -357,13 +379,13 @@ $App->on('setup_theme', function(){
 });
 
 $App->on('wp_load', function(){
-	// do setup_theme stuff
+	// do wp_load stuff
 });
 
 ```
 
 # Requirements
-- PHP 5.4
+- PHP 5.3
 - Wordpress ~3.8
 
 

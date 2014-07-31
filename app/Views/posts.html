@@ -3,7 +3,7 @@
 {% block title %}Posts-Collection{% endblock %}
 
 {% block main %}
-	<h3>Welcome. here are my posts:</h3>
+	<h3>Welcome. here are my {{ type }}:</h3>
 	{% for post in posts %}
 		<li>{{ loop.index }} - {{ post.title() }}</li>
 	{% endfor %}

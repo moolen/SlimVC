@@ -4,7 +4,7 @@
         "phpunit/phpunit": "4.1.4",
         "twig/twig": "1.16.0",
         "slim/views": "0.1.2",
-        "nekoo/EventEmitter": "1.0.2"
+        "pagon/eventemitter": "0.5.2"
     },
     "autoload": {
     	"psr-4": {

@@ -2,11 +2,10 @@
 
 namespace App\Controllers;
 
-use \App\Lib\SlimVC\Controller as BaseController;
 
-class NotFoundController extends BaseController{
+class NotFoundController{
 	public function __construct( $App ){
-		parent::__construct( $App );
+		$this->App = $App;
 		$this->render();
 	}
 

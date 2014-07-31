@@ -2,12 +2,11 @@
 
 namespace App\Controllers;
 
-use \App\Lib\SlimVC\Controller as BaseController;
 use \App\Models\BooksModel as BooksModel;
 
-class BooksController extends BaseController{
+class BooksController{
 	public function __construct( $App, $params ){
-		parent::__construct( $App );
+		$this->App = $App;
 		$this->BooksModel = new BooksModel();
 		$this->render();
 	}
@@ -15,7 +14,8 @@ class BooksController extends BaseController{
 	public function render(){
 		return $this->App->render('posts.html',
 			array(
-				'posts' => $this->BooksModel
+				'posts' => $this->BooksModel,
+				'type' => 'books'
 			)
 		);
 	}
