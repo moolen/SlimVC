@@ -76,6 +76,12 @@ class SlimVC{
 		$this->Slim->Event = new EventEmitter();
 		$this->Slim->Router = new Router( $this );
 
+		// configure slim view cache
+		$this->Slim->view()->parserOptions = array(
+			'debug' => true,
+			'cache' => dirname(__FILE__) . '/../../../cache'
+		);
+
 		// add necessary action & filter callbacks
 		add_action( 'muplugins_loaded', array($this, 'onMuPluginsLoaded') );		
 		add_action( 'plugins_loaded', array($this, 'onPluginsLoaded') );		
@@ -178,11 +184,11 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onTemplateRedirect(){
+		$this->Slim->Event->emit('template_redirect');
 		$this->Slim->Router->setConditionalTags();
 		$this->Slim->Router->assignRoutes();
 		$this->callInitializers();
 		$this->Slim->Router->run();
-		$this->Slim->Event->emit('template_redirect');
 		exit;
 	}
 
