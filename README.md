@@ -370,15 +370,14 @@ The SlimVC Class exposes a eventdriven API to register callbacks to all Wordpres
 
 ```PHP
 
-$App->on('init', function(){
+$App->Event->on('init', function(){
 	// do init stuff
 });
 
-$App->on('setup_theme', function(){
-	// do setup_theme stuff
-});
+// also array form is supported
+$App->Event->on('setup_theme', array('myClass', 'someMethod'));
 
-$App->on('wp_load', function(){
+$App->Event->on('wp_load', function(){
 	// do wp_load stuff
 });
 

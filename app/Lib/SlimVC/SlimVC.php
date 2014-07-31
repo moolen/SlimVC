@@ -1,13 +1,14 @@
 <?php
 namespace App\Lib\SlimVC;
 
-use \Slim\Views\Twig as TwigView;
-use \Slim\Slim as Slim;
-use \Pagon\EventEmitter as EventEmitter;
+use \App\Lib\SlimVC\EventEmitter as EventEmitter;
 use \App\Lib\SlimVC\ConfigManager as ConfigManager;
 use \App\Lib\SlimVC\WPHelper as WPHelper;
 use \App\Lib\SlimVC\Router as Router;
 use \App\Lib\SlimVC\Logger as Logger;
+use \Slim\Views\Twig as TwigView;
+use \Slim\Slim as Slim;
+
 
 class SlimVC{
 
@@ -72,7 +73,7 @@ class SlimVC{
 		// init helper classes 
 		$this->ConfigManager = new ConfigManager( $this );
 		$this->Slim = new Slim( $this->slimOptions );
-		$this->Slim->Vent = new EventEmitter();
+		$this->Slim->Event = new EventEmitter();
 		$this->Slim->Router = new Router( $this );
 
 		// add necessary action & filter callbacks
@@ -125,7 +126,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onMuPluginsLoaded(){
-		$this->Slim->Vent->emit('muplugins_loaded');
+		$this->Slim->Event->emit('muplugins_loaded');
 	}
 
 	/**
@@ -133,7 +134,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onPluginsLoaded(){
-		$this->Slim->Vent->emit('plugins_loaded');
+		$this->Slim->Event->emit('plugins_loaded');
 	}
 
 	/**
@@ -141,7 +142,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onSetupTheme(){
-		$this->Slim->Vent->emit('setup_theme');
+		$this->Slim->Event->emit('setup_theme');
 	}
 
 	/**
@@ -149,7 +150,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onAfterSetupTheme(){
-		$this->Slim->Vent->emit('after_setup_theme');
+		$this->Slim->Event->emit('after_setup_theme');
 	}
 
 	/**
@@ -160,7 +161,7 @@ class SlimVC{
 	public function onInit(){
 		$this->setAcfJsonPath();
 		$this->ConfigManager->initWpHooks();
-		$this->Slim->Vent->emit('init');
+		$this->Slim->Event->emit('init');
 	}
 
 	/**
@@ -168,7 +169,7 @@ class SlimVC{
 	 * @return [void]
 	 */
 	public function onWpLoaded(){
-		$this->Slim->Vent->emit('wp_loaded');
+		$this->Slim->Event->emit('wp_loaded');
 	}
 
 	/**
@@ -181,7 +182,7 @@ class SlimVC{
 		$this->Slim->Router->assignRoutes();
 		$this->callInitializers();
 		$this->Slim->Router->run();
-		$this->Slim->Vent->emit('template_redirect');
+		$this->Slim->Event->emit('template_redirect');
 		exit;
 	}
 
