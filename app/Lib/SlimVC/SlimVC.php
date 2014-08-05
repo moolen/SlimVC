@@ -3,13 +3,24 @@ namespace App\Lib\SlimVC;
 
 use \App\Lib\SlimVC\EventEmitter as EventEmitter;
 use \App\Lib\SlimVC\ConfigManager as ConfigManager;
-use \App\Lib\SlimVC\WPHelper as WPHelper;
 use \App\Lib\SlimVC\Router as Router;
-use \App\Lib\SlimVC\Logger as Logger;
 use \Slim\Views\Twig as TwigView;
 use \Slim\Slim as Slim;
 
-
+/**
+ * This is a singleton Class that wrapps:
+ * - \Slim\Slim  (router micro framework, TWIG templating engine)
+ * - \SlimVC\Router (router extension for WP conditionals)
+ * - \SlimVC\ConfigManager (set-up, include & cache your app/conf dir)
+ * - \SlimVC\EventEmitter (public EventEmitter API provider)
+ *
+ * There is no public API on this class,
+ * BUT there are public methods for the Wordpress action API callbacks.
+ * (which SHOULD NOT be called)
+ *
+ * @example 
+ * 		$instance = \App\Lib\SlimVC::getInstance();
+ */
 class SlimVC{
 
 	/**
@@ -65,9 +76,7 @@ class SlimVC{
 			'view' => new TwigView(),
 			'templates.path' => dirname(__FILE__) . '/../../Views',
 			'debug' => false,
-			'log.enabled' => false,
-			//'log.writer' => new Logger(),
-			//'log.level' => \Slim\Log::DEBUG
+			'log.enabled' => false
 		);
 
 		// init helper classes 
@@ -91,6 +100,10 @@ class SlimVC{
 		add_action( 'wp_loaded', array($this, 'onWpLoaded') );
 		add_action( 'template_redirect', array($this, 'onTemplateRedirect') );
 		
+		// lets use our own canonical redirect filter
+		// we dont want to redirect
+		remove_filter('template_redirect', 'redirect_canonical');
+
 	}
 
 	/**
@@ -185,11 +198,12 @@ class SlimVC{
 	 */
 	public function onTemplateRedirect(){
 		$this->Slim->Event->emit('template_redirect');
+		// use own canonical redirect filter.
 		$this->Slim->Router->setConditionalTags();
 		$this->Slim->Router->assignRoutes();
 		$this->callInitializers();
 		$this->Slim->Router->run();
-		exit;
+		echo $this->Slim->Router->Logger->flush();
 	}
 
 }

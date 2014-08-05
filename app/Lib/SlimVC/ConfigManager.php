@@ -36,7 +36,23 @@ class ConfigManager{
 		'sidebars',
 		'templates',
 		'postTypes',
-		'taxonomies'
+		'taxonomies',
+		'routes'
+	);
+
+	protected $defaults = array(
+		// app defaults are @getApplicationDefaults()
+		'application' => array(),
+		'images' => array(),
+		'menus' => array(),
+		'sidebars' => array(),
+		'templates' => array(),
+		'postTypes' => array(),
+		'taxonomies' => array(),
+		'routes' => array(
+			'explicit' => array(),
+			'conditional' => array()
+		)
 	);
 
 	/**
@@ -92,16 +108,29 @@ class ConfigManager{
 			if( $this->APC_ENABLED ){
 				// fetch from cache if exists
 				if( (!apc_exists( $this->APC_PREFIX . 'FILE_' . $file )) && (true !== $this->application['debug']) ){
-					$content = $this->read($file);
+					$content = $this->mergeWithDefaults( $file, $this->read($file) );
 					apc_add($this->APC_PREFIX . 'FILE_' . $file, $content);
 					$this->$file = $content;
 				}else{
 					$this->$file = apc_fetch($this->APC_PREFIX . 'FILE_' . $file);
 				}
 			}else{
-				$this->$file = $this->read($file);
+				$this->$file = $this->mergeWithDefaults( $file, $this->read($file) );
 			}
 		}
+	}
+
+	/**
+	 * merges $file as key from $this->defaults array with provided $config
+	 * @param  [string] $file
+	 * @param  [array] $config
+	 * @return [array]
+	 */
+	protected function mergeWithDefaults($file, $config){
+		if( isset( $this->defaults[$file] ) ){
+			return array_merge($this->defaults[$file], $config);
+		}
+		return $config;
 	}
 
 	/**
@@ -173,6 +202,7 @@ class ConfigManager{
 			$this->application['slim'] = $slimOptions;
 		}
 		
+		$this->parent->routeConfiguration = $this->routes;
 		$this->parent->applicationConfiguration = $this->application;
 
 	}

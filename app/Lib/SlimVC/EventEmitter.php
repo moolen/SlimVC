@@ -115,7 +115,7 @@ class EventEmitter {
      * @param callable $listener
      * @return void
      */
-    public function removeListener($eventName, \callable $listener) {
+    public function removeListener($eventName, $listener) {
 
         $listeners =& $this->listeners($eventName);
         foreach($listeners as $index => $check) {

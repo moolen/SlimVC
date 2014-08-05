@@ -6,18 +6,74 @@ use \App\Lib\SlimVC\Logger;
 
 class Router{
 
-	// opts & instances
+	/**
+	 * default Controller namespace
+	 * @var string
+	 */
 	protected $controllerNamespace = '\\App\\Controllers\\';
+
+	/**
+	 * default method seperator for route configuration
+	 * @var string
+	 */
+	protected $methodSeperator = '::';
+
+	/**
+	 * holds our Slim instance
+	 * @var [\Slim\Slim]
+	 */
 	protected $Slim = null;
-	protected $options = array();
-	protected $Logger = null;
+
+	/**
+	 * holds our routing configuration; extends from SlimVC $parent 
+	 * @var array
+	 */
+	protected $routingConfiguration = array();
+
+	/**
+	 * logger instance
+	 * @var [Object]
+	 */
+	public $Logger = null;
+
+	/**
+	 * LogLevel
+	 * @var integer
+	 */
 	public $logLevel = 0;
+
+	/**
+	 * enable Log mode?
+	 * @var boolean
+	 */
 	public $enableLogging = false;
 
-	// routing vars
-	protected $explicitRoutes = array();
+	/**
+	 * holds our conditional tags
+	 * will be set after template_redirect
+	 * @var array
+	 */
 	protected $conditionalTags = array(); 
+
+	/**
+	 * holds our conditional routes
+	 * @var array
+	 */
 	protected $conditionalRoutes = array();
+
+	/**
+	 * defualt: explicit route conf
+	 * @var array
+	 */
+	protected $defaultExplicitRoute = array(
+		'method' => 'GET'
+	);
+
+	/**
+	 * default: conditional route conf
+	 * @var array
+	 */
+	protected $defaultConditionalRoute = array();
 
 	public function __construct( $parent ){
 		$this->parent = $parent;
@@ -27,9 +83,13 @@ class Router{
 		// inherit loglevel from Slim instance
 		$this->logLevel = $this->Slim->log->getLevel();
 		$this->enableLogging = $this->parent->applicationConfiguration['debug'];
+		$this->methodSeperator = $this->parent->applicationConfiguration['method.seperator'];
+		$this->routeConfiguration = $this->parent->routeConfiguration;
 
 		$this->Slim->view()->parserOptions = array('debug' => $this->enableLogging);
 		$this->Slim->view()->parserExtensions = new TwigExtension();
+
+		$this->applyRouteConfiguration();
 	}
 
 	/**
@@ -41,14 +101,6 @@ class Router{
 	 */
 	protected function callSlimApi( $method, $path, $controller ){
 		$self = $this;
-		//var_dump($method, $path);
-		if( 8 <= $this->logLevel && $this->enableLogging ){
-			$ctrl = $controller;
-			if( is_callable($controller) ){
-				$ctrl = 'Closure';
-			}
-			$this->Logger->write('adding route: ' . $method . '('.$path.') :: ' . $ctrl);
-		}
 		
 		// e.g. $slim->get($path, $callback); the $callback calls the defined controller.
 		call_user_func( array( $this->Slim, $method ), $path, function() use (&$self, &$controller){
@@ -59,6 +111,76 @@ class Router{
 			// call controller
 			$self->callController($controller, $params);
 		});
+	}
+
+	/**
+	 * applies the route configuration to the Router (set by ConfManager)
+	 * @uses  SlimVC->routeConfiguration
+	 * @return [type] [description]
+	 */
+	protected function applyRouteConfiguration(){
+
+		$explicits = $this->routeConfiguration['explicit'];
+		$conditionals = $this->routeConfiguration['conditional'];
+
+		if( 8 <= $this->logLevel && $this->enableLogging ){
+			$this->Logger->write('configuring explicit routes:');
+		}
+
+		// register explicit route configuration
+		foreach( $explicits as $conf ){
+			$merge = array_merge($this->defaultExplicitRoute, $conf);
+
+			// check values
+			if( is_string($merge['method']) && isset($merge['path']) && isset($merge['controller']) ){
+				
+				if( 8 <= $this->logLevel && $this->enableLogging ){
+					$this->Logger->write('adding ' . $merge ['method'] . '(' . $merge['path'] . ')' );
+				}
+
+				// call slim api with args
+				$this->callSlimApi(
+					strtolower($merge['method']),
+					$merge['path'],
+					$merge['controller']
+				);
+			}else{
+				throw new \Exception("Explicit Route-Configuration error: method, route & controller has to be set.");
+			}
+		}
+
+		if( 8 <= $this->logLevel && $this->enableLogging ){
+			$this->Logger->write('configuring conditional routes:');
+		}
+
+		// register conditional routes
+		foreach( $conditionals as $conf ){
+			$controller = $conf['controller'];
+			unset($conf['controller']);
+
+			// check for controller existence, throw otherwise
+			if( isset($controller) ){
+
+				if( 8 <= $this->logLevel && $this->enableLogging ){
+					$this->Logger->write('adding conditional: ' . var_export($conf, true) . ' for '  .$controller );
+				}
+
+				// we have to translate true to "true"
+				// (json_encode would do true => 1)
+				// otherwise we would conflict with Post IDs
+				foreach( $conf as $key => $value ){
+					if( !is_int( $key ) && true === $value ){
+						$conf[$key] = 'true';
+					}
+				}
+
+				// json_encoded $conf is our key
+				$key = json_encode($conf);
+				$this->conditionalRoutes[$key] = $controller;
+			}else{
+				throw new \Exception("Conditional Route-Configuration: No Controller set.");
+			}
+		}
 	}
 
 	/**
@@ -82,7 +204,12 @@ class Router{
 			'archive' => \is_archive(),
 			'search' => \is_search(),
 			'singular' => \is_singular(),
-			'404' => \is_404()
+			'404' => \is_404(),
+			'post_type_archive' => \is_post_type_archive(),
+
+			// the following options default to true
+			// they will be checked in @matchConditionalRoute
+			'post_type' => true,
 		);
 	}
 
@@ -96,14 +223,15 @@ class Router{
 		$routeMatches = false;
 		$routeController = false;
 		$conditions = array();
+		global $post;
+		$this->Slim->post = $post;
 
 		foreach( $this->conditionalRoutes as $conditionKey => $controller ){
 
-			// 
+			// if key is no json use directly
 			if( null === $conditions = (array) json_decode( $conditionKey ) ){
 				$conditions = $conditionKey;
 			}
-
 
 			// logging
 			if( 8 <= $this->logLevel && $this->enableLogging ){
@@ -146,6 +274,7 @@ class Router{
 	 */
 	protected function matchConditionalRoute( array $conditions ){
 
+		$post = $this->Slim->WP_Post;
 		$matches = 0;
 		$count = count($conditions);
 
@@ -155,7 +284,12 @@ class Router{
 			// like page_template => 'my-template'
 			if( 'true' !== $conditionValue && true !== $conditionValue){
 				$fn = 'is_' . $conditionKey;
-				$conditionalArguments = call_user_func($fn, $conditionValue);
+				if( function_exists($fn) ){
+					$conditionalArguments = call_user_func( $fn, $conditionValue );
+				}else{
+					$matched = $this->matchPostAttribute( $conditionKey, $conditionValue );
+					$conditionalArguments = true;
+				}				
 			}else{
 				$conditionalArguments = true;
 			}
@@ -172,6 +306,21 @@ class Router{
 	}
 
 	/**
+	 * matches a $attr with $val on the global $post object
+	 * @param  [string] $attr
+	 * @param  [string] $val
+	 * @return [bool]
+	 */
+	protected function matchPostAttribute($attr, $val){
+		if( is_object( $this->Slim->WP_Post) ){
+			if( $this->Slim->WP_Post->$attr && $this->Slim->WP_Post->$attr === $val ){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * calls $controller with $controllerNamespace
 	 * also passes $params for optional arguments in route 
 	 * e.g. /foo( /:param1 ( /:param2 ) )
@@ -181,21 +330,33 @@ class Router{
 	 * @return [void]
 	 */
 	public function callController( $controller, array $params=array() ){
-
 		// call controller name
 		// with $this->baseNamespace
 		if( is_string( $controller ) ){
+
+			$controller = explode($this->methodSeperator, $controller);
 			$baseNamespace = $this->controllerNamespace;
-			$class = $baseNamespace . $controller;
+			$class = $baseNamespace . $controller[0];
+			$method = $controller[1];
+
 			if( class_exists($class) ){
+				
 				$reflection = new \ReflectionClass( $class );
+				
 				$instance = $reflection->newInstanceArgs(array(
 					$this->Slim,
 					$params
 				));
+
+				if( is_string($method) ){
+					if( method_exists($instance, $method) ){
+						$instance->$method();
+					}else{
+						throw new \Exception("Class does not have method " . $method );
+					}
+				}
 			}else{
-				var_dump($class);
-				trigger_error("Class does not exist: " . $class);
+				throw new \Exception("Class does not exist: " . $class);
 			}
 			
 		// otherwise check if a callable is submitted
@@ -238,43 +399,6 @@ class Router{
 	}
 
 	/**
-	 * sets the controllerNamespace
-	 * @param [string] $ns
-	 * @return  Router
-	 */
-	public function setControllerNamespace( $ns ){
-		$this->controllerNamespace = $ns;
-		return $this;
-	}
-
-	/**
-	 * sets conditional routing logic
-	 * @param  [string|array]  $conditionals
-	 * @param  [controller]  $controller
-	 * @return this
-	 */
-	public function is( $conditionals, $controller ){
-		if( is_string( $conditionals) ){
-			$key = json_encode( array( $conditionals => true) );
-			$this->conditionalRoutes[ $key ] = $controller;
-		}elseif( is_array($conditionals) ){
-
-			// we have to translate true to "true"
-			foreach( $conditionals as $key => $value ){
-				if( !is_int( $key ) && true === $value ){
-					$conditionals[$key] = 'true';
-				}
-			}
-
-			$key = json_encode($conditionals);
-
-			$this->conditionalRoutes[$key] = $controller;
-		}
-
-		return $this;
-	}
-
-	/**
 	 * assigns routes to Slim instance;
 	 * explicit routes are preferred;
 	 * conditional routes are run if NO explicit routes are found
@@ -292,7 +416,7 @@ class Router{
 				$self->Logger->write('checking conditional routes...');
 			}
 			if( false === $self->runConditionalRoutes() ){
-				echo "no routes found.";
+				$self->Logger->write( "no routes found." );
 			}
 		});
 	}
@@ -310,35 +434,6 @@ class Router{
 	 */
 	public function addMiddleware( $middleware ){
 		$this->Slim->add( $middleware );
-	}
-
-	// slim api shortcut
-	public function get($path, $controller){
-		$this->callSlimApi('get', $path, $controller);
-	}
-
-	// slim api shortcut
-	public function post($path, $controller){
-		$this->callSlimApi('post', $path, $controller);
-	}
-
-	// slim api shortcut
-	public function put($path, $controller){
-		$this->callSlimApi('put', $path, $controller);
-	}
-
-	// slim api shortcut
-	public function delete($path, $controller){
-		$this->callSlimApi('delete', $path, $controller);
-	}
-
-	// slim api shortcut
-	public function patch($path, $controller){
-		$this->callSlimApi('patch', $path, $controller);
-	}
-
-	public function group($path, $callback){
-		$this->callSlimApi('group', $path, $callback);
 	}
 
 }

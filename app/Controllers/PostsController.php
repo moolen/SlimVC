@@ -9,15 +9,22 @@ class PostsController{
 	public function __construct( $App ){
 		$this->App = $App;
 		$this->PostsModel = new PostsModel();
-		$this->render();
+	}
+
+	public function foo(){
+		echo "hello from foo!";
 	}
 
 	public function render(){
-		return $this->App->render('posts.html',
-			array(
-				'posts' => $this->PostsModel,
-				'type' => 'posts'
-			)
-		);
+		$this->App->response->headers->set('CONTENT_TYPE', 'application/json');
+		$this->App->response->setBody('{"foo":"bar"}');
+		//$this->App->response->finalize();
+
+		// return $this->App->render('posts.html',
+		// 	array(
+		// 		'posts' => $this->PostsModel,
+		// 		'type' => 'posts'
+		// 	)
+		// );
 	}
 }

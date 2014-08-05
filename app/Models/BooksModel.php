@@ -7,13 +7,14 @@ use \App\Lib\SlimVC\PostModel;
 
 class BooksModel implements \IteratorAggregate{
 
+	protected $post;
 	protected $posts;
 
-	public function __construct(){
-		$this->posts = $this->getPosts();
+	public function __construct($post = null){
+		$this->post = new PostModel($post);
 	}
 
-	public function getPosts(){
+	public function getAllBooks(){
 
 		// fetch all posts
 		$posts = \get_posts(array(
@@ -26,6 +27,10 @@ class BooksModel implements \IteratorAggregate{
 		return array_map(function( $post ){
 			return new PostModel( $post );
 		}, $posts);
+	}
+
+	public function getSingleBook(){
+		return $this->post;
 	}
 
 

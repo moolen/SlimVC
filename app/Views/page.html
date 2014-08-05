@@ -5,6 +5,6 @@
 {% block main %}
 	<h3>{{ post.title() }}</h3>
 	<article>
-		{{ post.content() }}
+		{{ post.content() | raw }}
 	</article>
 {% endblock %}

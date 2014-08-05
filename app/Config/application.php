@@ -6,6 +6,7 @@ return array(
 
 	'debug' => false,
 	'namespace.controller' => '\\App\\Conrollers\\',
+	'method.seperator' => ':',
 	'slim' => array(
 		// env vars
 		'mode' => 'development',
