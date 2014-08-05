@@ -16,15 +16,15 @@ class PostsController{
 	}
 
 	public function render(){
-		$this->App->response->headers->set('CONTENT_TYPE', 'application/json');
-		$this->App->response->setBody('{"foo":"bar"}');
-		//$this->App->response->finalize();
+		//$this->App->response->headers->set('CONTENT_TYPE', 'application/json');
+		//$this->App->response->setBody('{"foo":"bar"}');
+		$this->App->response->finalize();
 
-		// return $this->App->render('posts.html',
-		// 	array(
-		// 		'posts' => $this->PostsModel,
-		// 		'type' => 'posts'
-		// 	)
-		// );
+		return $this->App->render('posts.html',
+			array(
+				'posts' => $this->PostsModel,
+				'type' => 'posts'
+			)
+		);
 	}
 }
