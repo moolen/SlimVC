@@ -30,13 +30,6 @@ class SlimVC{
 	private static $instance = null;
 
 	/**
-	 * holds a list of functions which will be called
-	 * after slim is initialized
-	 * @var array
-	 */
-	protected $initializerList = array();
-
-	/**
 	 * holds our merged slimOptions
 	 * @var [array]
 	 */
@@ -104,16 +97,6 @@ class SlimVC{
 		// we dont want to redirect
 		remove_filter('template_redirect', 'redirect_canonical');
 
-	}
-
-	/**
-	 * calls the initializers callbacks
-	 * @return [void]
-	 */
-	protected function callInitializers(){
-		foreach( $this->initializerList as $fn ){
-			call_user_func($fn);
-		}
 	}
 
 	/**
@@ -201,7 +184,6 @@ class SlimVC{
 		// use own canonical redirect filter.
 		$this->Slim->Router->setConditionalTags();
 		$this->Slim->Router->assignRoutes();
-		$this->callInitializers();
 		$this->Slim->Router->run();
 		echo $this->Slim->Router->Logger->flush();
 	}

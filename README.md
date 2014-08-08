@@ -7,7 +7,7 @@ You will write better, maintainable and extensible code by using the MVC paradig
 - No more mixing data-aggregation, business-logic and template code.
 
 # Documentation
-The Docs have their own repository here.
+The Docs have their own repository [here](https://github.com/moolen/SlimVC-documentation).
 
 # Features
 - MVC Layer
@@ -22,7 +22,6 @@ The Docs have their own repository here.
 # Installation
 clone this repository into your `themes/` folder.
 install composer (https://getcomposer.org/download/) and run `composer install` inside `themes/<your-theme>/app/` directory.
-Be sure to create a .htaccess.
 
 ## License
 
