@@ -21,8 +21,9 @@ The Docs have their own repository [here](https://github.com/moolen/SlimVC-docum
 - Wordpress ~3.8
 
 # Installation
-clone this repository into your `themes/` folder.
-install composer (https://getcomposer.org/download/) and run `composer install` inside `themes/<your-theme>/app/` directory.
+- clone this repository into your `themes/` folder.
+- install composer (https://getcomposer.org/download/) 
+- and run `composer install` inside `themes/<your-theme>/app/` directory.
 
 ## License
 
