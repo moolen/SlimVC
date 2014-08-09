@@ -23,7 +23,7 @@ The Docs have their own repository [here](https://github.com/moolen/SlimVC-docum
 # Installation
 - clone this repository into your `themes/` folder.
 - install composer (https://getcomposer.org/download/) 
-- and run `composer install` inside `themes/<your-theme>/app/` directory.
+- run `composer install` inside `themes/<your-theme>/app/` directory.
 
 ## License
 

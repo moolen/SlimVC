@@ -193,6 +193,7 @@ class Router{
 	protected function getConditionalTags(){
 		return array(
 			'home' => \is_home(),
+			'author' => \is_author(),
 			'front_page' => \is_front_page(),
 			'blog_page' => \is_home() && is_front_page(),
 			'admin' => \is_admin(),
@@ -202,6 +203,7 @@ class Router{
 			'category' => \is_category(),
 			'tag' => \is_tag(),
 			'tax' => \is_tax(),
+			'sticky' => \is_sticky(),
 			'archive' => \is_archive(),
 			'search' => \is_search(),
 			'singular' => \is_singular(),
