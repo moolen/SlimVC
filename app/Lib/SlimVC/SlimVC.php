@@ -63,7 +63,7 @@ class SlimVC{
 	 * @uses  add_action [wordpress-core]
 	 */
 	private function __construct(){
-
+		$that = $this;
 		// merge & save opts
 		$this->slimOptions = array(
 			'view' => new TwigView(),
@@ -74,9 +74,22 @@ class SlimVC{
 
 		// init helper classes 
 		$this->ConfigManager = new ConfigManager( $this );
-		$this->Slim = new Slim( $this->slimOptions );
+		
+		$this->Slim = new Slim( array_merge(
+			$this->slimOptions,
+			$this->applicationConfiguration
+		));
+
 		$this->Slim->Event = new EventEmitter();
 		$this->Slim->Router = new Router( $this );
+
+		$this->Slim->error(function($e) use (&$that){
+			if( is_array($that->applicationConfiguration)
+				&&
+				true === $that->applicationConfiguration['debug'] ){
+				call_user_func(array($that->Router, 'errorHandler'));
+			}
+		});
 
 		// configure slim view cache
 		$this->Slim->view()->parserOptions = array(

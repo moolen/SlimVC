@@ -82,11 +82,12 @@ class Router{
 
 		// inherit loglevel from Slim instance
 		$this->logLevel = $this->Slim->log->getLevel();
-		$this->enableLogging = $this->parent->applicationConfiguration['debug'];
+		$this->enableLogging = $this->parent->applicationConfiguration['log.enabled'];
+		$this->debugMode = $this->parent->applicationConfiguration['debug'];
 		$this->methodSeperator = $this->parent->applicationConfiguration['method.seperator'];
 		$this->routeConfiguration = $this->parent->routeConfiguration;
 
-		$this->Slim->view()->parserOptions = array('debug' => $this->enableLogging);
+		$this->Slim->view()->parserOptions = array('debug' => $this->debugMode);
 		$this->Slim->view()->parserExtensions = new TwigExtension();
 
 		$this->applyRouteConfiguration();
@@ -211,6 +212,16 @@ class Router{
 			// they will be checked in @matchConditionalRoute
 			'post_type' => true,
 		);
+	}
+
+	/**
+	 * called by slim if an error occures.
+	 * @return [type] [description]
+	 */
+	public function errorHandler($str, $foo){
+		//$args = ;
+		//var_dump(func_get_args());
+		//echo "errr.";
 	}
 
 	/**

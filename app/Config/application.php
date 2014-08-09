@@ -4,19 +4,10 @@ namespace App\Config;
 
 return array(
 
-	'debug' => false,
+	'debug' => true,
 	'namespace.controller' => '\\App\\Conrollers\\',
 	'method.seperator' => ':',
-	'slim' => array(
-		// env vars
-		'mode' => 'development',
-		'log.enabled' => true,
-		'log.writer' => new \App\Lib\SlimVC\Logger(),
-		'log.level' => \Slim\Log::DEBUG,
-
-		// view & templating
-		'view' => new \Slim\Views\Twig(),
-		'templates.path' => dirname(__FILE__) . '/../Views',
-	)
-	
+	'log.enabled' => true,
+	'log.level' => 8,
+	'templates.path' => dirname(__FILE__) . '/../views'
 );
