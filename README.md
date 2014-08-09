@@ -11,6 +11,7 @@ The Docs have their own repository [here](https://github.com/moolen/SlimVC-docum
 
 # Features
 - MVC Layer
+- Unit Testing (PHPUnit)
 - Twig templating engine
 - Configuration engine
 - Routing engine
