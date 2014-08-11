@@ -2,3 +2,4 @@ app/vendor
 app/composer.lock
 cache/**
 documentation/
+npm-debug.log
