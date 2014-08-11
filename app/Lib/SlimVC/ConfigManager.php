@@ -155,17 +155,10 @@ class ConfigManager{
 		return array(
 			'debug' => true,
 			'namespace.controller' => '\\App\\Conrollers\\',
-			'slim' => array(
-				// env vars
-				'mode' => 'development',
-				'log.enabled' => true,
-				'log.writer' => new \App\Lib\SlimVC\Logger(),
-				'log.level' => \Slim\Log::DEBUG,
-
-				// view & templating
-				'view' => new \Slim\Views\Twig(),
-				'templates.path' => dirname(__FILE__) . '/../Views',
-			)
+			'log.enabled' => true,
+			'log.level' => \Slim\Log::DEBUG,
+			'view' => new \Slim\Views\Twig(),
+			'templates.path' => dirname(__FILE__) . '/../Views'
 		);
 	}
 
@@ -175,28 +168,37 @@ class ConfigManager{
 	 */
 	protected function applyConfiguration(){
 
-		// register image sizes
-		foreach( $this->images as $name => $opts){
-			$options = $opts + $this->defaultImageSize;
-			add_image_size($name, $options[0], $options[1], $options[2]);
+		if( is_array($this->images) ){
+			// register image sizes
+			foreach( $this->images as $name => $opts){
+				$options = $opts + $this->defaultImageSize;
+				add_image_size($name, $options[0], $options[1], $options[2]);
+			}
+		}
+		
+		if( is_array($this->templates) ){
+			// add page templates
+			foreach( $this->templates as $slug=>$name ){
+				$this->PageTemplate->addPageTemplate($name, $slug);
+			}
 		}
 
-		// add page templates
-		foreach( $this->templates as $slug=>$name ){
-			$this->PageTemplate->addPageTemplate($name, $slug);
+		if( is_array($this->menus) ){
+			// add nav menus
+			foreach( $this->menus as $slug=>$name ){
+				register_nav_menu( $slug, $name );
+			}
 		}
-
-		// add nav menus
-		foreach( $this->menus as $slug=>$name ){
-			register_nav_menu( $slug, $name );
+		
+		if( is_array($this->sidebars) ){
+			// add sidebars
+			foreach( $this->sidebars as $config ){
+				register_sidebar($config);
+			}
 		}
+		
 
-		// add sidebars
-		foreach( $this->sidebars as $config ){
-			register_sidebar($config);
-		}
-
-		if( is_array($this->application) && is_array($this->application['slim']) ){
+		if( is_array($this->application) && isset($this->application['slim']) && is_array($this->application['slim']) ){
 			$slimOptions = array_merge( $this->parent->slimOptions, $this->application['slim'] );
 			$this->parent->slimOptions = $slimOptions;
 			$this->application['slim'] = $slimOptions;
@@ -216,34 +218,40 @@ class ConfigManager{
 		$ct = $this->taxonomies;
 		$cpt = $this->postTypes;
 
-			
 		// register CT
-		foreach( $ct as $slug=>$opts ){
+		if( is_array($ct) ){
 			
-			$args = null;
-			$postType = 'post';
-
-			if( is_array($opts) ){
+			foreach( $ct as $slug=>$opts ){
 				
-				// check for args array
-				if( isset($opts['args']) && is_array($opts['args']) && !empty($opts['args']) ){
-					$args = $opts['args'];
-				}
+				$args = null;
+				$postType = 'post';
 
-				// check for postType def
-				if( isset($opts['postType']) && !empty($opts['postType']) ){
-					$postType = $opts['postType'];
+				if( is_array($opts) ){
+					
+					// check for args array
+					if( isset($opts['args']) && is_array($opts['args']) && !empty($opts['args']) ){
+						$args = $opts['args'];
+					}
+
+					// check for postType def
+					if( isset($opts['postType']) && !empty($opts['postType']) ){
+						$postType = $opts['postType'];
+					}
+					// register
+					register_taxonomy($slug, $postType, $args);
 				}
-				// register
-				register_taxonomy($slug, $postType, $args);
+				
 			}
+		}	
 			
-		}
-
 		// register CPT
-		foreach($cpt as $slug=>$opts){
-			register_post_type($slug, $opts);
+		if( is_array($cpt) ){
+			
+			foreach($cpt as $slug=>$opts){
+				register_post_type($slug, $opts);
+			}
 		}
+		
 	}
 
 }

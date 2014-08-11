@@ -1,5 +1,7 @@
 <?php
 
+// templates.php
 return array(
-	'my-template' => 'DAWG Example Template'
+    // slug       ->  pretty name
+    //'my-template' => 'Fresh Example Template'
 );

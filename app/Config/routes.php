@@ -6,50 +6,55 @@
 return array(
 
 	'explicit' => array(
+		// sample with optional :bar param
+		//array(
+		//	'method'		=> 'GET',
+		//	'path'			=> '/my-books/(:bar?)',
+		//	'controller'	=> 'BooksController::'
+		//),
 
-		array(
-			'method'		=> 'GET',
-			'path'			=> '/my-books/(:bar?)',
-			'controller'	=> 'BooksController'
-		),
-
-		array(
-			// GET method is default
-			'path'			=> '/baz/:bee',
-			'controller'	=> 'PostsController:foo'
-		),
+		//array(
+		//	// GET method is default
+		//	'path'			=> '/baz/:bee',
+		//	'controller'	=> 'PostsController::foo'
+		//),
 
 	),
 
 	'conditional' => array(
 
-		array(
-			'page' => true,
-			//'page_template' => 'my-template',
-			'controller' => 'PageController'
-		),
+		// page / page-template 
+		//array(
+		//	'page' => true,
+		//	'page_template' => 'my-template',
+		//	'controller' => 'PageController::myCustomTemplate'
+		//),
 
-		array(
-			'archive' => true,
-			'post_type' => 'books',
-			'controller' => 'BooksController:archive'
-		),
+		// Custom Post Type Archive
+		//array(
+		//	'archive' => true,
+		//	'post_type' => 'books',
+		//	'controller' => 'BooksController::archive'
+		//),
 
-		array(
-			'single' => true,
-			'post_type' => 'books',
-			'controller' => 'BooksController:single'
-		),
+		// Custom Post Type Single
+		//array(
+		//	'single' => true,
+		//	'post_type' => 'books',
+		//	'controller' => 'BooksController::single'
+		//),
 
-		array(
-			'home' => true,
-			'controller' => 'PostsController:render'
-		),
+		// Home Page 
+		//array(
+		//	'home' => true,
+		//	'controller' => 'PostsController::render'
+		//),
 
-		array(
-			'404' => true,
-			'controller' => 'NotFoundController'
-		)
+		// you SHOULD always adda 4ß4 handler
+		//array(
+		//	'404' => true,
+		//	'controller' => 'NotFoundController'
+		//)
 
 	)
 

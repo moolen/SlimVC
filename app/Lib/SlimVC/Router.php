@@ -124,64 +124,70 @@ class Router{
 		$explicits = $this->routeConfiguration['explicit'];
 		$conditionals = $this->routeConfiguration['conditional'];
 
-		if( 8 <= $this->logLevel && $this->enableLogging ){
-			$this->Logger->write('configuring explicit routes:');
-		}
-
-		// register explicit route configuration
-		foreach( $explicits as $conf ){
-			$merge = array_merge($this->defaultExplicitRoute, $conf);
-
-			// check values
-			if( is_string($merge['method']) && isset($merge['path']) && isset($merge['controller']) ){
-				
-				if( 8 <= $this->logLevel && $this->enableLogging ){
-					$this->Logger->write('adding ' . $merge ['method'] . '(' . $merge['path'] . ')' );
-				}
-
-				// call slim api with args
-				$this->callSlimApi(
-					strtolower($merge['method']),
-					$merge['path'],
-					$merge['controller']
-				);
-			}else{
-				throw new \Exception("Explicit Route-Configuration error: method, route & controller has to be set.");
+		if( is_array($explicits) ){
+			// debug
+			if( 8 <= $this->logLevel && $this->enableLogging ){
+				$this->Logger->write('configuring explicit routes:');
 			}
-		}
+			// register explicit route configuration
+			foreach( $explicits as $conf ){
+				$merge = array_merge($this->defaultExplicitRoute, $conf);
 
-		if( 8 <= $this->logLevel && $this->enableLogging ){
-			$this->Logger->write('configuring conditional routes:');
-		}
-
-		// register conditional routes
-		foreach( $conditionals as $conf ){
-			$controller = $conf['controller'];
-			unset($conf['controller']);
-
-			// check for controller existence, throw otherwise
-			if( isset($controller) ){
-
-				if( 8 <= $this->logLevel && $this->enableLogging ){
-					$this->Logger->write('adding conditional: ' . var_export($conf, true) . ' for '  .$controller );
-				}
-
-				// we have to translate true to "true"
-				// (json_encode would do true => 1)
-				// otherwise we would conflict with Post IDs
-				foreach( $conf as $key => $value ){
-					if( !is_int( $key ) && true === $value ){
-						$conf[$key] = 'true';
+				// check values
+				if( is_string($merge['method']) && isset($merge['path']) && isset($merge['controller']) ){
+					
+					if( 8 <= $this->logLevel && $this->enableLogging ){
+						$this->Logger->write('adding ' . $merge ['method'] . '(' . $merge['path'] . ')' );
 					}
-				}
 
-				// json_encoded $conf is our key
-				$key = json_encode($conf);
-				$this->conditionalRoutes[$key] = $controller;
-			}else{
-				throw new \Exception("Conditional Route-Configuration: No Controller set.");
+					// call slim api with args
+					$this->callSlimApi(
+						strtolower($merge['method']),
+						$merge['path'],
+						$merge['controller']
+					);
+				}else{
+					throw new \Exception("Explicit Route-Configuration error: method, route & controller has to be set.");
+				}
 			}
 		}
+		
+
+		if( is_array($conditionals) ){
+			// debug
+			if( 8 <= $this->logLevel && $this->enableLogging ){
+				$this->Logger->write('configuring conditional routes:');
+			}
+			// register conditional routes
+			foreach( $conditionals as $conf ){
+				$controller = $conf['controller'];
+				unset($conf['controller']);
+
+				// check for controller existence, throw otherwise
+				if( isset($controller) ){
+
+					if( 8 <= $this->logLevel && $this->enableLogging ){
+						$this->Logger->write('adding conditional: ' . var_export($conf, true) . ' for '  .$controller );
+					}
+
+					// we have to translate true to "true"
+					// (json_encode would do true => 1)
+					// otherwise we would conflict with Post IDs
+					foreach( $conf as $key => $value ){
+						if( !is_int( $key ) && true === $value ){
+							$conf[$key] = 'true';
+						}
+					}
+
+					// json_encoded $conf is our key
+					$key = json_encode($conf);
+					$this->conditionalRoutes[$key] = $controller;
+				}else{
+					throw new \Exception("Conditional Route-Configuration: No Controller set.");
+				}
+			}
+		}
+		
 	}
 
 	/**
@@ -239,42 +245,44 @@ class Router{
 		global $post;
 		$this->Slim->post = $post;
 
-		foreach( $this->conditionalRoutes as $conditionKey => $controller ){
+		if( is_array($this->conditionalRoutes) && 0 < count($this->conditionalRoutes) ){
 
-			// if key is no json use directly
-			if( null === $conditions = (array) json_decode( $conditionKey ) ){
-				$conditions = $conditionKey;
-			}
-
-			// logging
-			if( 8 <= $this->logLevel && $this->enableLogging ){
-				$this->Logger->write('checking conditional match for: '. $conditionKey);
-			}
-
-			if( $this->matchConditionalRoute( $conditions ) ){
-				$routeMatches = true;
-				$routeController = $controller;
+			foreach( $this->conditionalRoutes as $conditionKey => $controller ){
+				// if key is no json use directly
+				if( null === $conditions = (array) json_decode( $conditionKey ) ){
+					$conditions = $conditionKey;
+				}
 
 				// logging
 				if( 8 <= $this->logLevel && $this->enableLogging ){
-					$this->Logger->write('matched');
+					$this->Logger->write('checking conditional match for: '. $conditionKey);
 				}
 
-				break;
-			}else{
+				if( $this->matchConditionalRoute( $conditions ) ){
+					$routeMatches = true;
+					$routeController = $controller;
 
-				// logging
-				if( 8 <= $this->logLevel && $this->enableLogging ){
-					$this->Logger->write('no match found.');
+					// logging
+					if( 8 <= $this->logLevel && $this->enableLogging ){
+						$this->Logger->write('matched');
+					}
+
+					break;
+				}else{
+
+					// logging
+					if( 8 <= $this->logLevel && $this->enableLogging ){
+						$this->Logger->write('no match found.');
+					}
+
 				}
+			}
 
+			if( $routeMatches ){
+				$this->callController($controller);
 			}
 		}
-
-		if( $routeMatches ){
-			$this->callController($controller);
-		}
-
+		
 		return $routeMatches;
 	}
 
@@ -425,7 +433,7 @@ class Router{
 		// use default Route
 		// which handles the conditional Logic
 		$this->Slim->get('/.*?', function() use (&$self){
-			if( 8 <= $self->logLevel && $self->enableLogging ){
+			if( 8 <= $self->logLevel && $self->enableLogging && 0 < count($self->getConditionalRoutes())){
 				$self->Logger->write('checking conditional routes...');
 			}
 			if( false === $self->runConditionalRoutes() ){
@@ -439,6 +447,14 @@ class Router{
 	 */
 	public function setConditionalTags(){
 		$this->conditionalTags = $this->getConditionalTags();
+	}
+
+	/**
+	 * returns conditional Routes
+	 * @return [array]
+	 */
+	public function getConditionalRoutes(){
+		return $this->conditionalRoutes;
 	}
 
 	/**
