@@ -1,5 +1,5 @@
 # SlimVC
-This is a lightweight MVC Abstraction Layer on top of Wordpress; SlimVC is not a Framework that wrapps the Wordpress API like [Themosis](themosis.com) does, it is a **set of tools** that lets you configure your Wordpress application's custom post types, taxonomies, image-sizes, sidebars, menus, page-templates and custom routes.
+This is a lightweight MVC Abstraction Layer on top of Wordpress; SlimVC is not a Framework that wrapps the Wordpress API like [Themosis](http://www.themosis.com) does, it is a **set of tools** that lets you configure your Wordpress application's custom post types, taxonomies, image-sizes, sidebars, menus, page-templates and custom routes.
 
 You will write better, maintainable and extensible code by using the MVC paradigm.
 - no more PHP / HTML string concatenation
