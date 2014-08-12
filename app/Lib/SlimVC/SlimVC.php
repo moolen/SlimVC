@@ -3,6 +3,7 @@ namespace App\Lib\SlimVC;
 
 use \App\Lib\SlimVC\EventEmitter as EventEmitter;
 use \App\Lib\SlimVC\ConfigManager as ConfigManager;
+use \App\Lib\SlimVC\Debugger as Debugger;
 use \App\Lib\SlimVC\Router as Router;
 use \Slim\Views\Twig as TwigView;
 use \Slim\Slim as Slim;
@@ -64,25 +65,23 @@ class SlimVC{
 	 */
 	private function __construct(){
 		$that = $this;
-		// merge & save opts
-		$this->slimOptions = array(
-			'view' => new TwigView(),
-			'templates.path' => dirname(__FILE__) . '/../../Views',
-			'debug' => false,
-			'log.enabled' => false
-		);
 
-		// init helper classes 
+		// init conf manager
 		$this->ConfigManager = new ConfigManager( $this );
 		
-		$this->Slim = new Slim( array_merge(
-			$this->slimOptions,
-			$this->applicationConfiguration
-		));
+		// call slim with merged conf
+		$this->Slim = new Slim( $this->applicationConfiguration );
 
+		// init the rest of our helper calsses
 		$this->Slim->Event = new EventEmitter();
 		$this->Slim->Router = new Router( $this );
 
+		if( true === $this->applicationConfiguration['debug'] ){
+			// debugger is not ready yet.
+			//$this->Slim->Debugger = new Debugger();
+		}
+		// @TODO
+		// register a custom error handler for slim
 		$this->Slim->error(function($e) use (&$that){
 			if( is_array($that->applicationConfiguration)
 				&&
@@ -93,8 +92,8 @@ class SlimVC{
 
 		// configure slim view cache
 		$this->Slim->view()->parserOptions = array(
-			'debug' => true,
-			'cache' => dirname(__FILE__) . '/../../../cache'
+			'debug' => $this->applicationConfiguration['debug'],
+			'cache' => $this->applicationConfiguration['twig.cache.dir']
 		);
 
 		// add necessary action & filter callbacks
@@ -107,7 +106,8 @@ class SlimVC{
 		add_action( 'template_redirect', array($this, 'onTemplateRedirect') );
 		
 		// lets use our own canonical redirect filter
-		// we dont want to redirect
+		// we do not want to redirect misspelled URLs 
+		// because this would redirect before our router is initialized
 		remove_filter('template_redirect', 'redirect_canonical');
 
 	}
@@ -198,6 +198,10 @@ class SlimVC{
 		$this->Slim->Router->setConditionalTags();
 		$this->Slim->Router->assignRoutes();
 		$this->Slim->Router->run();
+		if( $this->Slim->Debugger ){
+			$this->Slim->Debugger->printStack();
+		}
+		
 		echo $this->Slim->Router->Logger->flush();
 	}
 

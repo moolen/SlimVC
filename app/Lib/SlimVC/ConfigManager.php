@@ -158,7 +158,8 @@ class ConfigManager{
 			'log.enabled' => true,
 			'log.level' => \Slim\Log::DEBUG,
 			'view' => new \Slim\Views\Twig(),
-			'templates.path' => dirname(__FILE__) . '/../Views'
+			'templates.path' => dirname(__FILE__) . '/../Views',
+			'twig.cache.dir' => dirname(__FILE__) . '/../../cache'
 		);
 	}
 
